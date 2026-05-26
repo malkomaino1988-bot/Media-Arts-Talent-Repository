@@ -31,12 +31,23 @@ export default function JobsPage() {
   });
 
   const sortedJobs = [...(data?.jobs ?? [])].sort((a, b) => {
+    if (sortBy === "recent") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     if (sortBy === "talent-asc") return a.category.localeCompare(b.category);
     if (sortBy === "talent-desc") return b.category.localeCompare(a.category);
     if (sortBy === "city-asc") return a.city.localeCompare(b.city);
     if (sortBy === "city-desc") return b.city.localeCompare(a.city);
     return 0;
   });
+
+  const hasFilters = Boolean(search || city || category);
+
+  const clearFilters = () => {
+    setSearch("");
+    setCity("");
+    setCategory("");
+    setSortBy("recent");
+    setPage(1);
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
@@ -116,6 +127,21 @@ export default function JobsPage() {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-100">
+            <p className="text-sm text-gray-500">
+              Sort by talent or city, then contact listings directly from the board.
+            </p>
+            {hasFilters && (
+              <Button
+                variant="outline"
+                className="rounded-xl"
+                onClick={clearFilters}
+                data-testid="button-clear-job-filters"
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -190,13 +216,36 @@ export default function JobsPage() {
             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-200">
               <Briefcase size={28} className="text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-black mb-2">No jobs posted yet</h3>
-            <p className="text-gray-500 mb-6">Be the first to post a creative opportunity.</p>
-            <Link href="/post-job">
-              <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl" data-testid="button-first-job">
-                Post a Job
-              </Button>
-            </Link>
+            <h3 className="text-xl font-bold text-black mb-2">
+              {hasFilters ? "No jobs match these filters" : "No jobs posted yet"}
+            </h3>
+            <p className="text-gray-500 mb-6">
+              {hasFilters
+                ? "Reset the filters to review every active opportunity, or post a new role if you are hiring."
+                : "Be the first to post a creative opportunity for the MATR community."}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {hasFilters && (
+                <Button
+                  variant="outline"
+                  className="rounded-xl"
+                  onClick={clearFilters}
+                  data-testid="button-reset-empty-job-filters"
+                >
+                  Clear Filters
+                </Button>
+              )}
+              <Link href="/explore">
+                <Button variant="outline" className="rounded-xl" data-testid="button-browse-talent">
+                  Browse Talent
+                </Button>
+              </Link>
+              <Link href="/post-job">
+                <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl" data-testid="button-first-job">
+                  Post a Job
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
       </div>

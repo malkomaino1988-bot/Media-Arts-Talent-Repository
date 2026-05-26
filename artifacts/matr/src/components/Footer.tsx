@@ -4,6 +4,30 @@ export default function Footer() {
   return (
     <footer className="bg-black text-white pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 mb-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-white/40 mb-2">Creative Network</p>
+            <h3 className="text-2xl md:text-3xl font-black text-white mb-2">
+              Keep every path in the directory working.
+            </h3>
+            <p className="text-sm text-gray-400 max-w-2xl">
+              Discover talent, post a role, promote your brand, or manage your membership without hunting for the next step.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/explore">
+              <span className="inline-flex h-11 items-center rounded-xl bg-[#E50914] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#b40710] cursor-pointer">
+                Browse Talent
+              </span>
+            </Link>
+            <Link href="/jobs">
+              <span className="inline-flex h-11 items-center rounded-xl border border-white/15 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5 cursor-pointer">
+                Browse Jobs
+              </span>
+            </Link>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
@@ -13,7 +37,7 @@ export default function Footer() {
               <span className="font-black text-white text-lg tracking-tight">MATR</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Media Arts Talent Repository — Windsor's premier creative talent directory.
+              Media Arts Talent Repository - a creative directory for talent, production teams, and local hiring.
             </p>
           </div>
 
@@ -68,6 +92,7 @@ export default function Footer() {
                 { href: "/sign-up", label: "Join the Directory" },
                 { href: "/sign-in", label: "Sign In" },
                 { href: "/dashboard", label: "Dashboard" },
+                { href: "/admin", label: "Admin Portal" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href}>

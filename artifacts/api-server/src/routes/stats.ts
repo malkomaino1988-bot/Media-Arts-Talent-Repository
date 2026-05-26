@@ -30,7 +30,7 @@ router.get("/stats/overview", async (_req, res): Promise<void> => {
     friend: 25,
     bronze: 50,
     silver: 100,
-    gold: 150,
+    gold: 250,
     "gold-business": 500,
     "platinum-business": 1000,
   };
@@ -90,7 +90,7 @@ router.get("/stats/membership-distribution", async (_req, res): Promise<void> =>
     friend: 25,
     bronze: 50,
     silver: 100,
-    gold: 150,
+    gold: 250,
     "gold-business": 500,
     "platinum-business": 1000,
   };
