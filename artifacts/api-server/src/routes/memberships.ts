@@ -76,7 +76,7 @@ const PLANS = [
     id: 4,
     name: "Gold",
     slug: "gold",
-    priceYearly: 150,
+    priceYearly: 250,
     bioLimit: null,
     talentLimit: null,
     mediaLimit: 25,
@@ -131,7 +131,7 @@ const PLANS = [
     hasCompanyLogo: true,
     isBusinessPlan: true,
     isMostPopular: false,
-    description: "The ultimate business package for studios, agencies, and major employers.",
+    description: "The ultimate business package for agencies and major employers.",
     features: [
       "All Gold Business features",
       "15 job posting credits ($1,500 value)",

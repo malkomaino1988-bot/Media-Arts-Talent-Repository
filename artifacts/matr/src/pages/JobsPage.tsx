@@ -18,6 +18,7 @@ export default function JobsPage() {
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("");
   const [category, setCategory] = useState("");
+  const [sortBy, setSortBy] = useState("recent");
   const [page, setPage] = useState(1);
 
   const params: Record<string, string | number> = { page, limit: 10 };
@@ -29,21 +30,29 @@ export default function JobsPage() {
     query: { queryKey: getListJobsQueryKey(params) },
   });
 
+  const sortedJobs = [...(data?.jobs ?? [])].sort((a, b) => {
+    if (sortBy === "talent-asc") return a.category.localeCompare(b.category);
+    if (sortBy === "talent-desc") return b.category.localeCompare(a.category);
+    if (sortBy === "city-asc") return a.city.localeCompare(b.city);
+    if (sortBy === "city-desc") return b.city.localeCompare(a.city);
+    return 0;
+  });
+
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <div className="bg-black text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-4xl md:text-6xl font-black mb-4"
               >
-                Job Board
+                Browse Jobs
               </motion.h1>
-              <p className="text-white/50 text-lg">
-                Creative opportunities in Windsor and surrounding areas
+              <p className="text-white/50 text-lg max-w-3xl">
+                Review current opportunities, then narrow the list by talent type or city.
               </p>
             </div>
             <Link href="/post-job">
@@ -61,8 +70,8 @@ export default function JobsPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="relative md:col-span-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+            <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <Input
                 value={search}
@@ -72,26 +81,38 @@ export default function JobsPage() {
                 data-testid="input-job-search"
               />
             </div>
-            <Select value={category} onValueChange={(v) => { setCategory(v === "all" ? "" : v); setPage(1); }}>
+            <Select value={category} onValueChange={(value) => { setCategory(value === "all" ? "" : value); setPage(1); }}>
               <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-category">
-                <SelectValue placeholder="Category" />
+                <SelectValue placeholder="Talent Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                <SelectItem value="all">Any Talent Type</SelectItem>
+                {CATEGORIES.map((item) => (
+                  <SelectItem key={item} value={item}>{item}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select value={city} onValueChange={(v) => { setCity(v === "all" ? "" : v); setPage(1); }}>
+            <Select value={city} onValueChange={(value) => { setCity(value === "all" ? "" : value); setPage(1); }}>
               <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-city">
                 <SelectValue placeholder="City" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Cities</SelectItem>
-                {CITIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                <SelectItem value="all">Any City</SelectItem>
+                {CITIES.map((item) => (
+                  <SelectItem key={item} value={item}>{item}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-sort">
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">Most Recent</SelectItem>
+                <SelectItem value="talent-asc">Talent A-Z</SelectItem>
+                <SelectItem value="talent-desc">Talent Z-A</SelectItem>
+                <SelectItem value="city-asc">City A-Z</SelectItem>
+                <SelectItem value="city-desc">City Z-A</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -103,13 +124,13 @@ export default function JobsPage() {
               <div key={i} className="h-28 bg-white rounded-2xl animate-pulse" />
             ))}
           </div>
-        ) : data?.jobs && data.jobs.length > 0 ? (
+        ) : sortedJobs.length > 0 ? (
           <>
             <p className="text-gray-500 text-sm mb-4" data-testid="text-jobs-count">
-              {data.total} job{data.total !== 1 ? "s" : ""} available
+              {data?.total} job{data?.total !== 1 ? "s" : ""} available
             </p>
             <div className="space-y-4">
-              {data.jobs.map((job, i) => (
+              {sortedJobs.map((job, i) => (
                 <motion.div
                   key={job.id}
                   initial={{ opacity: 0, y: 16 }}

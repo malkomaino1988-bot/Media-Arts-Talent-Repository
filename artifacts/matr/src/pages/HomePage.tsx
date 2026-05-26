@@ -14,7 +14,7 @@ const TALENT_TYPES = [
   "Animator", "Writer", "DJ", "Makeup Artist", "Art Director",
 ];
 
-const CITIES = ["Windsor", "Tecumseh", "LaSalle", "Amherstburg", "Essex", "Leamington"];
+const HERO_IMAGE = `${import.meta.env.BASE_URL}opengraph.jpg`;
 
 export default function HomePage() {
   const [planToggle, setPlanToggle] = useState<"individual" | "business">("individual");
@@ -29,90 +29,100 @@ export default function HomePage() {
 
   return (
     <div className="bg-white">
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-black min-h-[90vh] flex items-center">
+      <section className="relative overflow-hidden bg-black min-h-[92vh] flex items-center">
         <div
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 opacity-25"
           style={{
-            backgroundImage: "radial-gradient(circle at 30% 50%, #E50914 0%, transparent 60%), radial-gradient(circle at 80% 20%, #444 0%, transparent 50%)",
+            backgroundImage:
+              "radial-gradient(circle at 20% 15%, rgba(229,9,20,.55) 0%, transparent 28%), radial-gradient(circle at 82% 12%, rgba(255,255,255,.12) 0%, transparent 26%), linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.6))",
           }}
         />
-        <div className="absolute inset-0 opacity-5"
+        <div
+          className="absolute inset-0 opacity-[0.07]"
           style={{
-            backgroundImage: "linear-gradient(0deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%), linear-gradient(90deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%)",
-            backgroundSize: "50px 50px",
+            backgroundImage:
+              "linear-gradient(0deg, transparent 24%, rgba(255,255,255,.08) 25%, rgba(255,255,255,.08) 26%, transparent 27%), linear-gradient(90deg, transparent 24%, rgba(255,255,255,.08) 25%, rgba(255,255,255,.08) 26%, transparent 27%)",
+            backgroundSize: "52px 52px",
           }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl"
-          >
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_.95fr] gap-10 lg:gap-16 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-8"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="max-w-3xl"
             >
-              <div className="w-2 h-2 bg-[#E50914] rounded-full animate-pulse" />
-              <span className="text-white/80 text-sm font-medium">Media Arts Talent Repository</span>
+              <h1 className="text-5xl md:text-7xl lg:text-[5.4rem] font-black text-white leading-[0.92] tracking-tight mb-6">
+                Connect with content creators through the Media Arts Talent Repository -{" "}
+                <span className="text-[#E50914]">MATR.</span>
+              </h1>
+
+              <p className="text-white/70 text-lg md:text-xl max-w-2xl leading-relaxed mb-10">
+                Welcome to our media arts talent repository where you can gain exposure for your creative talents - or an opportunity to be a part of your cast, crew or team.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/explore">
+                  <Button
+                    size="lg"
+                    className="bg-[#E50914] hover:bg-[#b40710] text-white font-bold text-base px-8 h-12 rounded-xl group"
+                    data-testid="button-explore-talent"
+                  >
+                    Explore Talent
+                    <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white/30 text-white bg-white/10 hover:bg-white/20 font-bold text-base px-8 h-12 rounded-xl backdrop-blur-sm"
+                    data-testid="button-join-directory"
+                  >
+                    Join the Directory
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="mt-14 grid grid-cols-3 gap-6 max-w-sm">
+                {[
+                  { value: "MATR", label: "Creative Directory" },
+                  { value: "15+", label: "Talent Types" },
+                  { value: "Local", label: "Cast, Crew, Team" },
+                ].map((stat) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.8 }}
+                  >
+                    <p className="text-2xl font-black text-white">{stat.value}</p>
+                    <p className="text-white/40 text-xs mt-0.5">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.9] tracking-tight mb-6">
-              Connect with the{" "}
-              <span className="text-[#E50914]">creative pulse</span>{" "}
-              of Windsor
-            </h1>
-
-            <p className="text-white/60 text-lg md:text-xl max-w-2xl leading-relaxed mb-10">
-              Discover Windsor's most talented photographers, filmmakers, musicians, designers, and creative professionals.
-              The definitive directory for the region's media arts community.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/explore">
-                <Button
-                  size="lg"
-                  className="bg-[#E50914] hover:bg-[#b40710] text-white font-bold text-base px-8 h-12 rounded-xl group"
-                  data-testid="button-explore-talent"
-                >
-                  Explore Talent
-                  <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/30 text-white bg-white/10 hover:bg-white/20 font-bold text-base px-8 h-12 rounded-xl backdrop-blur-sm"
-                  data-testid="button-join-directory"
-                >
-                  Join the Directory
-                </Button>
-              </Link>
-            </div>
-
-            <div className="mt-16 grid grid-cols-3 gap-8 max-w-sm">
-              {[
-                { value: "500+", label: "Creative Professionals" },
-                { value: "15+", label: "Talent Types" },
-                { value: "Windsor", label: "Based" },
-              ].map((stat) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.8 }}
-                >
-                  <p className="text-2xl font-black text-white">{stat.value}</p>
-                  <p className="text-white/40 text-xs mt-0.5">{stat.label}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 32 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              className="relative lg:pl-4"
+            >
+              <div className="relative h-[420px] sm:h-[520px] lg:h-[640px] overflow-hidden rounded-[34px] border border-white/10 bg-neutral-900 shadow-[0_30px_80px_rgba(0,0,0,.45)]">
+                <img
+                  src={HERO_IMAGE}
+                  alt="Creative professionals collaborating"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
+                <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-black via-black/60 to-transparent" />
+                <div className="absolute right-0 top-0 h-full w-full bg-[radial-gradient(circle_at_82%_18%,rgba(229,9,20,.34),transparent_24%)]" />
+              </div>
+            </motion.div>
+          </div>
         </div>
 
         <motion.div
@@ -124,7 +134,6 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* MEMBERSHIP SECTION */}
       <section className="py-20 bg-[#F5F5F5]" id="membership">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -132,38 +141,57 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="grid grid-cols-1 lg:grid-cols-[1fr_.9fr] gap-10 items-center mb-12"
           >
-            <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
-              Choose Your Plan
-            </h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              From emerging creatives to established studios — find the right membership for your needs.
-            </p>
+            <div className="max-w-2xl">
+              <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
+                Join our creative talent directory.
+              </h2>
+              <p className="text-gray-500 text-lg max-w-xl">
+                Individual plans range from $25/year to $250/year, with business options available when you need more reach.
+              </p>
 
-            <div className="mt-8 inline-flex bg-white rounded-xl p-1.5 border border-gray-200 shadow-sm">
-              <button
-                onClick={() => setPlanToggle("individual")}
-                className={`px-6 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  planToggle === "individual"
-                    ? "bg-black text-white shadow-sm"
-                    : "text-gray-500 hover:text-black"
-                }`}
-                data-testid="button-toggle-individual"
-              >
-                Individual
-              </button>
-              <button
-                onClick={() => setPlanToggle("business")}
-                className={`px-6 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  planToggle === "business"
-                    ? "bg-black text-white shadow-sm"
-                    : "text-gray-500 hover:text-black"
-                }`}
-                data-testid="button-toggle-business"
-              >
-                Business
-              </button>
+              <div className="mt-8 inline-flex bg-white rounded-xl p-1.5 border border-gray-200 shadow-sm">
+                <button
+                  onClick={() => setPlanToggle("individual")}
+                  className={`px-6 py-2 text-sm font-semibold rounded-lg transition-all ${
+                    planToggle === "individual"
+                      ? "bg-black text-white shadow-sm"
+                      : "text-gray-500 hover:text-black"
+                  }`}
+                  data-testid="button-toggle-individual"
+                >
+                  Individual
+                </button>
+                <button
+                  onClick={() => setPlanToggle("business")}
+                  className={`px-6 py-2 text-sm font-semibold rounded-lg transition-all ${
+                    planToggle === "business"
+                      ? "bg-black text-white shadow-sm"
+                      : "text-gray-500 hover:text-black"
+                  }`}
+                  data-testid="button-toggle-business"
+                >
+                  Business
+                </button>
+              </div>
+            </div>
+
+            <div className="relative h-[280px] md:h-[320px] overflow-hidden rounded-[30px] border border-gray-200 bg-white shadow-sm">
+              <img
+                src={HERO_IMAGE}
+                alt="Talent directory preview"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/76 to-transparent" />
+              <div className="absolute left-0 top-0 flex h-full max-w-[60%] flex-col justify-end p-8">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#E50914]">
+                  Membership
+                </p>
+                <p className="mt-3 text-2xl font-black text-black">
+                  Build a stronger profile and get seen faster.
+                </p>
+              </div>
             </div>
           </motion.div>
 
@@ -183,7 +211,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FIND TALENT */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -194,10 +221,10 @@ export default function HomePage() {
             className="text-center mb-12"
           >
             <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
-              Find the Right Talent
+              Discover Talent
             </h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              Search Windsor's creative community by skill, location, experience, and more.
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+              Search our database for talent to build your cast, crew, or creative team.
             </p>
           </motion.div>
 
@@ -270,14 +297,16 @@ export default function HomePage() {
               </div>
             </>
           ) : (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Search size={28} className="text-gray-400" />
-              </div>
-              <p className="text-gray-500 mb-6">No talent profiles yet. Be the first to join!</p>
-              <Link href="/sign-up">
-                <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold">
-                  Join the Directory
+            <div className="text-center py-10">
+              <Link href="/explore">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-black text-black hover:bg-black hover:text-white font-semibold px-8 rounded-xl"
+                  data-testid="button-view-directory-fallback"
+                >
+                  Browse the Directory
+                  <ArrowRight size={18} className="ml-2" />
                 </Button>
               </Link>
             </div>
@@ -285,7 +314,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* JOB BOARD */}
       <section className="py-20 bg-[#222222] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -297,13 +325,13 @@ export default function HomePage() {
             >
               <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5 mb-6">
                 <Briefcase size={14} className="text-[#E50914]" />
-                <span className="text-white/70 text-sm font-medium">Job Board</span>
+                <span className="text-white/70 text-sm font-medium">Jobs</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-black leading-tight mb-6">
-                Hire Local Creative Talent
+                Hire Content Creators / Talent
               </h2>
               <p className="text-white/60 text-lg leading-relaxed mb-6">
-                Connect with Windsor's creative professionals through our job board. Each posting stays live for 2 months, reaching hundreds of local artists, filmmakers, musicians, and designers.
+                Use Browse Jobs to review current opportunities. Once you are ready to reach creators directly, use Post a Job to share the role with the MATR community.
               </p>
               <div className="flex items-baseline gap-2 mb-8">
                 <span className="text-5xl font-black text-[#E50914]">$100</span>
@@ -338,32 +366,29 @@ export default function HomePage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="space-y-4"
+              className="relative"
             >
-              {[
-                { title: "Videographer Needed", company: "Windsor Film Co.", category: "Videography", city: "Windsor" },
-                { title: "Graphic Designer", company: "Creative Studio", category: "Design", city: "LaSalle" },
-                { title: "Voice Actor for Commercial", company: "Media Agency", category: "Voice Acting", city: "Windsor" },
-              ].map((job, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h4 className="font-bold text-white">{job.title}</h4>
-                      <p className="text-white/50 text-sm mt-1">{job.company} — {job.city}</p>
-                    </div>
-                    <span className="text-xs bg-[#E50914]/20 text-[#E50914] px-2.5 py-1 rounded-full font-medium flex-shrink-0">
-                      {job.category}
-                    </span>
-                  </div>
+              <div className="relative h-[420px] overflow-hidden rounded-[30px] border border-white/10 bg-neutral-900">
+                <img
+                  src={HERO_IMAGE}
+                  alt="Creative hiring board"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
+                <div className="absolute left-0 top-0 flex h-full max-w-[70%] flex-col justify-end p-8">
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#E50914]">
+                    Browse first
+                  </p>
+                  <p className="mt-3 text-3xl font-black text-white leading-tight">
+                    Review current jobs, then post when you know the role you need to fill.
+                  </p>
                 </div>
-              ))}
-              <p className="text-white/30 text-sm text-center pt-2">Sample job postings</p>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ADVERTISING */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -378,10 +403,10 @@ export default function HomePage() {
               <span className="text-gray-500 text-sm font-medium">Advertising</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
-              Reach Windsor's Creative Community
+              Reach Content Creators
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              Promote your brand, studio, or service to hundreds of engaged creative professionals.
+              Promote your brand, project, or service to engaged content creators.
             </p>
           </motion.div>
 
@@ -390,14 +415,14 @@ export default function HomePage() {
               {
                 name: "Sidebar Advertisement",
                 price: "$30/month",
-                description: "Prominent sidebar placement visible on every page of the directory. High visibility, maximum impressions.",
+                description: "Prominent sidebar placement visible across the directory.",
                 specs: "300 × 250px recommended",
                 badge: "Most Visible",
               },
               {
                 name: "Footer Advertisement",
                 price: "$15/month",
-                description: "Footer banner appearing on all pages. Cost-effective brand exposure to the entire MATR community.",
+                description: "Footer banner placement for broad visibility across the site.",
                 specs: "728 × 90px recommended",
                 badge: "Best Value",
               },
@@ -435,41 +460,53 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-20 bg-[#E50914]">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 lg:grid-cols-[1fr_.95fr] gap-10 items-center"
           >
-            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
-              Ready to showcase your talent?
-            </h2>
-            <p className="text-white/70 text-lg mb-10 max-w-xl mx-auto">
-              Join Windsor's definitive creative directory. Plans start at just $25/year.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/sign-up">
-                <Button
-                  size="lg"
-                  className="bg-white text-[#E50914] hover:bg-gray-100 font-bold px-10 h-12 rounded-xl"
-                  data-testid="button-cta-join"
-                >
-                  Join the Directory
-                </Button>
-              </Link>
-              <Link href="/explore">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/50 text-white hover:bg-white/10 font-bold px-10 h-12 rounded-xl"
-                  data-testid="button-cta-explore"
-                >
-                  Explore First
-                </Button>
-              </Link>
+            <div className="max-w-2xl">
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+                Join our creative talent directory.
+              </h2>
+              <p className="text-white/78 text-lg mb-10 max-w-xl">
+                Plans range from $25/year to $250/yr.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/sign-up">
+                  <Button
+                    size="lg"
+                    className="bg-white text-[#E50914] hover:bg-gray-100 font-bold px-10 h-12 rounded-xl"
+                    data-testid="button-cta-join"
+                  >
+                    Join the Directory
+                  </Button>
+                </Link>
+                <Link href="/explore">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white/50 text-white hover:bg-white/10 font-bold px-10 h-12 rounded-xl"
+                    data-testid="button-cta-explore"
+                  >
+                    Explore First
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative h-[320px] md:h-[380px] overflow-hidden rounded-[30px] border border-white/20 bg-[#b40710]">
+              <img
+                src={HERO_IMAGE}
+                alt="Creative directory members"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#E50914] via-[#E50914]/76 to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_20%,rgba(255,255,255,.18),transparent_24%)]" />
             </div>
           </motion.div>
         </div>

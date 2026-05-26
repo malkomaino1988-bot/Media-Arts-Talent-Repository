@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import PlanCard from "@/components/PlanCard";
 import { useGetMembershipPlans } from "@workspace/api-client-react";
 
+const HERO_IMAGE = `${import.meta.env.BASE_URL}opengraph.jpg`;
+
 export default function MembershipPage() {
   const [planToggle, setPlanToggle] = useState<"individual" | "business">("individual");
   const { data: plans, isLoading } = useGetMembershipPlans();
@@ -14,17 +16,30 @@ export default function MembershipPage() {
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <div className="bg-black text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black mb-4"
-          >
-            Membership Plans
-          </motion.h1>
-          <p className="text-white/50 text-lg max-w-xl mx-auto">
-            Invest in your creative career. Join Windsor's definitive talent directory.
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_.95fr] gap-10 items-center">
+            <div className="max-w-2xl">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-4xl md:text-6xl font-black mb-4"
+              >
+                Join our creative talent directory.
+              </motion.h1>
+              <p className="text-white/60 text-lg max-w-xl">
+                Individual plans range from $25/year to $250/yr, with business options available when you need hiring and branding tools.
+              </p>
+            </div>
+
+            <div className="relative h-[280px] md:h-[320px] overflow-hidden rounded-[30px] border border-white/10 bg-neutral-900">
+              <img
+                src={HERO_IMAGE}
+                alt="Creative membership preview"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/46 to-transparent" />
+            </div>
+          </div>
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, ilike, and, gte, lte, sql, arrayContains } from "drizzle-orm";
+import { eq, ilike, and, gte, lte, sql, or, type SQL } from "drizzle-orm";
 import { db, usersTable, mediaTable } from "@workspace/db";
 import { ListTalentsQueryParams, GetTalentParams } from "@workspace/api-zod";
 
@@ -51,7 +51,7 @@ router.get("/talents", async (req, res): Promise<void> => {
   } = query.data;
 
   const offset = ((page ?? 1) - 1) * (limit ?? 12);
-  const conditions: ReturnType<typeof eq>[] = [
+  const conditions: SQL<unknown>[] = [
     eq(usersTable.isActive, true),
     eq(usersTable.role, "user"),
   ];
@@ -69,9 +69,16 @@ router.get("/talents", async (req, res): Promise<void> => {
   if (minExperience !== undefined) conditions.push(gte(usersTable.yearsExperience, minExperience) as ReturnType<typeof eq>);
   if (maxExperience !== undefined) conditions.push(lte(usersTable.yearsExperience, maxExperience) as ReturnType<typeof eq>);
   if (talentType) {
-    conditions.push(
-      sql`${usersTable.talentTags} @> ARRAY[${talentType}]::text[]` as ReturnType<typeof eq>,
-    );
+    const talentTypes = talentType
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (talentTypes.length === 1) {
+      conditions.push(sql`${usersTable.talentTags} @> ARRAY[${talentTypes[0]}]::text[]`);
+    } else if (talentTypes.length > 1) {
+      conditions.push(or(...talentTypes.map((item) => sql`${usersTable.talentTags} @> ARRAY[${item}]::text[]`)) as SQL<unknown>);
+    }
   }
 
   const whereClause = and(...conditions);
