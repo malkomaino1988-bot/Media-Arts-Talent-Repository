@@ -11,6 +11,7 @@ import {
 } from "@workspace/api-zod";
 import { createHash } from "crypto";
 import { canAccessUser, requireAdminUser, requireAuthenticatedUser } from "../lib/auth";
+import { recordAdminActivity } from "../lib/activity-log";
 
 const router = Router();
 
@@ -162,6 +163,26 @@ router.patch("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  if (actor.role === "admin" && actor.id !== user.id) {
+    if (typeof parsed.data.isActive === "boolean") {
+      recordAdminActivity({
+        actor,
+        action: parsed.data.isActive ? "user.reactivated" : "user.deactivated",
+        targetType: "user",
+        targetId: user.id,
+        summary: `${parsed.data.isActive ? "Reactivated" : "Deactivated"} ${user.firstName} ${user.lastName}`,
+      });
+    } else {
+      recordAdminActivity({
+        actor,
+        action: "user.updated",
+        targetType: "user",
+        targetId: user.id,
+        summary: `Updated ${user.firstName} ${user.lastName}`,
+      });
+    }
+  }
+
   const { passwordHash: _ph, ...safeUser } = user;
   res.json(safeUser);
 });
@@ -183,6 +204,14 @@ router.delete("/users/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "User not found" });
     return;
   }
+
+  recordAdminActivity({
+    actor,
+    action: "user.deleted",
+    targetType: "user",
+    targetId: user.id,
+    summary: `Deleted ${user.firstName} ${user.lastName}`,
+  });
 
   res.sendStatus(204);
 });

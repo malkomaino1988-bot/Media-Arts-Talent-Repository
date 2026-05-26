@@ -33,6 +33,18 @@ const planFilterOptions = ["All Plans", "Friend", "Bronze", "Silver", "Gold", "G
 const jobStatusOptions = ["active", "draft", "expired"];
 const adStatusOptions = ["pending", "active", "inactive"];
 
+type AdminActivityEntry = {
+  id: string;
+  actorId: number;
+  actorName: string;
+  action: string;
+  targetType: "user" | "job" | "ad" | "auth";
+  targetId: number | null;
+  summary: string;
+  details?: Record<string, string | number | boolean | null>;
+  createdAt: string;
+};
+
 export default function AdminPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -86,6 +98,20 @@ export default function AdminPage() {
       return response.json() as Promise<ListJobsResponse>;
     },
   });
+  const { data: activityData, isLoading: loadingActivity } = useQuery<AdminActivityEntry[]>({
+    queryKey: ["admin-activity"],
+    queryFn: async () => {
+      const token = window.localStorage.getItem("matr.auth.token");
+      const response = await fetch("/api/admin/activity", {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      if (!response.ok) {
+        throw new Error("Failed to load admin activity");
+      }
+
+      return response.json() as Promise<AdminActivityEntry[]>;
+    },
+  });
   const { data: adsData, isLoading: loadingAds } = useListAds({}, {
     query: { queryKey: getListAdsQueryKey({}) },
   });
@@ -118,6 +144,7 @@ export default function AdminPage() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: getListUsersQueryKey(usersParams) }),
       queryClient.invalidateQueries({ queryKey: ["admin-jobs"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-activity"] }),
       queryClient.invalidateQueries({ queryKey: getListAdsQueryKey({}) }),
       queryClient.invalidateQueries({ queryKey: getGetStatsOverviewQueryKey() }),
       queryClient.invalidateQueries({ queryKey: getGetTalentTypeBreakdownQueryKey() }),
@@ -327,6 +354,10 @@ export default function AdminPage() {
               <BarChart2 size={15} className="mr-2" />
               Revenue
             </TabsTrigger>
+            <TabsTrigger value="activity" className="rounded-lg data-[state=active]:bg-black data-[state=active]:text-white">
+              <TrendingUp size={15} className="mr-2" />
+              Activity
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -534,6 +565,46 @@ export default function AdminPage() {
                   </div>
                 )) : (
                   <p className="text-gray-400 text-sm">Revenue data will appear once memberships are active.</p>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="activity">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="p-5 border-b border-gray-100">
+                <h2 className="font-bold text-black">Admin Activity Log</h2>
+                <p className="text-sm text-gray-500">Track admin sign-ins and moderation actions across users, jobs, and ads.</p>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {loadingActivity ? (
+                  <div className="p-10 text-center text-gray-400">Loading activity...</div>
+                ) : activityData && activityData.length > 0 ? activityData.map((entry) => (
+                  <div key={entry.id} className="px-5 py-4 flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <p className="font-semibold text-sm text-black">{entry.summary}</p>
+                        <Badge variant="secondary" className="text-xs uppercase">{entry.targetType}</Badge>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {entry.actorName} • {new Date(entry.createdAt).toLocaleString()}
+                      </p>
+                      {entry.details && Object.keys(entry.details).length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {Object.entries(entry.details).map(([key, value]) => (
+                            <Badge key={key} variant="outline" className="text-[11px] rounded-full">
+                              {key}: {String(value)}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-400 uppercase tracking-[0.18em]">
+                      {entry.action.replaceAll(".", " ")}
+                    </p>
+                  </div>
+                )) : (
+                  <div className="p-10 text-center text-gray-400">No admin activity has been logged yet.</div>
                 )}
               </div>
             </div>

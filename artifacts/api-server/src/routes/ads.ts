@@ -9,6 +9,7 @@ import {
   DeleteAdParams,
 } from "@workspace/api-zod";
 import { getOptionalAuthenticatedUser, requireAuthenticatedUser } from "../lib/auth";
+import { recordAdminActivity } from "../lib/activity-log";
 
 const router = Router();
 
@@ -132,6 +133,19 @@ router.patch("/ads/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  if (actor.role === "admin") {
+    recordAdminActivity({
+      actor,
+      action: "ad.updated",
+      targetType: "ad",
+      targetId: ad.id,
+      summary: `Updated ${ad.placement} ad`,
+      details: {
+        status: ad.status,
+      },
+    });
+  }
+
   res.json(formatAd(ad));
 });
 
@@ -162,6 +176,16 @@ router.delete("/ads/:id", async (req, res): Promise<void> => {
   if (!ad) {
     res.status(404).json({ error: "Ad not found" });
     return;
+  }
+
+  if (actor.role === "admin") {
+    recordAdminActivity({
+      actor,
+      action: "ad.deleted",
+      targetType: "ad",
+      targetId: ad.id,
+      summary: `Deleted ${ad.placement} ad`,
+    });
   }
 
   res.sendStatus(204);
