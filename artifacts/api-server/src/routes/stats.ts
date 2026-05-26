@@ -1,10 +1,15 @@
 import { Router } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db, usersTable, jobsTable, adsTable, subscriptionsTable } from "@workspace/db";
+import { requireAdminUser } from "../lib/auth";
 
 const router = Router();
 
-router.get("/stats/overview", async (_req, res): Promise<void> => {
+router.get("/stats/overview", async (req, res): Promise<void> => {
+  if (!(await requireAdminUser(req, res))) {
+    return;
+  }
+
   const [userStats] = await db
     .select({
       total: sql<number>`count(*)`,
@@ -56,7 +61,11 @@ router.get("/stats/overview", async (_req, res): Promise<void> => {
   });
 });
 
-router.get("/stats/talent-types", async (_req, res): Promise<void> => {
+router.get("/stats/talent-types", async (req, res): Promise<void> => {
+  if (!(await requireAdminUser(req, res))) {
+    return;
+  }
+
   const users = await db
     .select({ talentTags: usersTable.talentTags })
     .from(usersTable)
@@ -77,7 +86,11 @@ router.get("/stats/talent-types", async (_req, res): Promise<void> => {
   res.json(result);
 });
 
-router.get("/stats/membership-distribution", async (_req, res): Promise<void> => {
+router.get("/stats/membership-distribution", async (req, res): Promise<void> => {
+  if (!(await requireAdminUser(req, res))) {
+    return;
+  }
+
   const subscriptions = await db
     .select({
       planSlug: subscriptionsTable.planSlug,

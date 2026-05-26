@@ -75,7 +75,10 @@ export default function AdminPage() {
       if (jobsParams.city) query.set("city", jobsParams.city);
       if (jobsParams.status !== "all") query.set("status", jobsParams.status);
 
-      const response = await fetch(`/api/jobs?${query.toString()}`);
+      const token = window.localStorage.getItem("matr.auth.token");
+      const response = await fetch(`/api/jobs?${query.toString()}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
       if (!response.ok) {
         throw new Error("Failed to load admin jobs");
       }

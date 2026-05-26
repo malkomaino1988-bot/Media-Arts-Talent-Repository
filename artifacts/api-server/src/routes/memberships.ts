@@ -2,6 +2,7 @@ import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db, subscriptionsTable, usersTable } from "@workspace/db";
 import { SubscribeMembershipBody, GetUserMembershipParams } from "@workspace/api-zod";
+import { canAccessUser, requireAuthenticatedUser } from "../lib/auth";
 
 const router = Router();
 
@@ -148,9 +149,19 @@ router.get("/memberships/plans", async (_req, res): Promise<void> => {
 });
 
 router.post("/memberships/subscribe", async (req, res): Promise<void> => {
+  const actor = await requireAuthenticatedUser(req, res);
+  if (!actor) {
+    return;
+  }
+
   const parsed = SubscribeMembershipBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  if (!canAccessUser(actor, parsed.data.userId)) {
+    res.status(403).json({ error: "You can only manage your own membership" });
     return;
   }
 
@@ -190,9 +201,19 @@ router.post("/memberships/subscribe", async (req, res): Promise<void> => {
 });
 
 router.get("/memberships/:userId", async (req, res): Promise<void> => {
+  const actor = await requireAuthenticatedUser(req, res);
+  if (!actor) {
+    return;
+  }
+
   const params = GetUserMembershipParams.safeParse({ userId: Number(req.params.userId) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!canAccessUser(actor, params.data.userId)) {
+    res.status(403).json({ error: "You can only access your own membership" });
     return;
   }
 

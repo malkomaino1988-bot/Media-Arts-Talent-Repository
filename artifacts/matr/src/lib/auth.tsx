@@ -7,9 +7,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { User } from "@workspace/api-client-react";
+import { setAuthTokenGetter, type User } from "@workspace/api-client-react";
 
 const AUTH_STORAGE_KEY = "matr.auth.userId";
+const AUTH_TOKEN_STORAGE_KEY = "matr.auth.token";
+
+type AuthResponse = {
+  token: string;
+  user: User;
+};
 
 type AuthContextValue = {
   user: User | null;
@@ -24,7 +30,17 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
-  const response = await fetch(input, init);
+  const token = typeof window !== "undefined" ? window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) : null;
+  const headers = new Headers(init?.headers);
+
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(input, {
+    ...init,
+    headers,
+  });
 
   if (!response.ok) {
     const payload = await response.json().catch(() => null) as { error?: string } | null;
@@ -44,7 +60,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(AUTH_STORAGE_KEY, String(nextUser.id));
     } else {
       window.localStorage.removeItem(AUTH_STORAGE_KEY);
+      window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
     }
+  }, []);
+
+  useEffect(() => {
+    setAuthTokenGetter(() => window.localStorage.getItem(AUTH_TOKEN_STORAGE_KEY));
+    return () => {
+      setAuthTokenGetter(null);
+    };
   }, []);
 
   const refreshUser = useCallback(async () => {
@@ -72,14 +96,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refreshUser]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const nextUser = await fetchJson<User>("/api/auth/sign-in", {
+    const authResponse = await fetchJson<AuthResponse>("/api/auth/sign-in", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
-    setUser(nextUser);
-    return nextUser;
+    window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, authResponse.token);
+    setUser(authResponse.user);
+    return authResponse.user;
   }, [setUser]);
 
   const signOut = useCallback(() => {

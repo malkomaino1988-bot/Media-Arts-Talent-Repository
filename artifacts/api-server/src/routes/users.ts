@@ -10,6 +10,7 @@ import {
   DeleteUserParams,
 } from "@workspace/api-zod";
 import { createHash } from "crypto";
+import { canAccessUser, requireAdminUser, requireAuthenticatedUser } from "../lib/auth";
 
 const router = Router();
 
@@ -18,6 +19,10 @@ function hashPassword(password: string): string {
 }
 
 router.get("/users", async (req, res): Promise<void> => {
+  if (!(await requireAdminUser(req, res))) {
+    return;
+  }
+
   const query = ListUsersQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -70,8 +75,9 @@ router.post("/users", async (req, res): Promise<void> => {
   }
 
   const { password, email, ...rest } = parsed.data;
+  const normalizedEmail = email.trim().toLowerCase();
 
-  const existing = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  const existing = await db.select().from(usersTable).where(eq(usersTable.email, normalizedEmail));
   if (existing.length > 0) {
     res.status(400).json({ error: "Email already registered" });
     return;
@@ -81,7 +87,7 @@ router.post("/users", async (req, res): Promise<void> => {
     .insert(usersTable)
     .values({
       ...rest,
-      email,
+      email: normalizedEmail,
       passwordHash: hashPassword(password),
     })
     .returning();
@@ -91,9 +97,19 @@ router.post("/users", async (req, res): Promise<void> => {
 });
 
 router.get("/users/:id", async (req, res): Promise<void> => {
+  const actor = await requireAuthenticatedUser(req, res);
+  if (!actor) {
+    return;
+  }
+
   const params = GetUserParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  if (!canAccessUser(actor, params.data.id)) {
+    res.status(403).json({ error: "You can only access your own profile" });
     return;
   }
 
@@ -108,15 +124,30 @@ router.get("/users/:id", async (req, res): Promise<void> => {
 });
 
 router.patch("/users/:id", async (req, res): Promise<void> => {
+  const actor = await requireAuthenticatedUser(req, res);
+  if (!actor) {
+    return;
+  }
+
   const params = UpdateUserParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
 
+  if (!canAccessUser(actor, params.data.id)) {
+    res.status(403).json({ error: "You can only update your own profile" });
+    return;
+  }
+
   const parsed = UpdateUserBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  if (actor.role !== "admin" && "isActive" in parsed.data) {
+    res.status(403).json({ error: "Only admins can change account status" });
     return;
   }
 
@@ -136,6 +167,11 @@ router.patch("/users/:id", async (req, res): Promise<void> => {
 });
 
 router.delete("/users/:id", async (req, res): Promise<void> => {
+  const actor = await requireAdminUser(req, res);
+  if (!actor) {
+    return;
+  }
+
   const params = DeleteUserParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
