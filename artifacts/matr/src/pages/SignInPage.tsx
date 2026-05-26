@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
@@ -6,26 +6,39 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
 
 export default function SignInPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast({ title: "Please fill in all fields", variant: "destructive" });
       return;
     }
+
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const user = await signIn(email, password);
+      toast({ title: "Welcome back", description: `Signed in as ${user.firstName} ${user.lastName}.` });
+      setLocation(user.role === "admin" ? "/admin" : "/dashboard");
+    } catch (error) {
+      toast({
+        title: "Sign in failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-      toast({ title: "Sign in functionality coming soon", description: "Full authentication will be added in a future update." });
-    }, 1000);
+    }
   };
 
   return (
@@ -69,7 +82,7 @@ export default function SignInPage() {
           </div>
 
           <h1 className="text-3xl font-black text-black mb-2">Sign In</h1>
-          <p className="text-gray-500 mb-8">Access your creative profile</p>
+          <p className="text-gray-500 mb-8">Access your creative profile, dashboard, and admin tools.</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>

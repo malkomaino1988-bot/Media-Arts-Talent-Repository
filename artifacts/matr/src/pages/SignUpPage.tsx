@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronRight, ChevronLeft, X } from "lucide-react";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import PlanCard from "@/components/PlanCard";
 import { useGetMembershipPlans, useCreateUser } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
 
 const TALENT_TYPES = [
   "Photographer", "Filmmaker", "Videographer", "Musician", "Voice Actor",
@@ -39,6 +40,7 @@ const PLAN_LIMITS: Record<string, { bio: number | null; talents: number | null; 
 export default function SignUpPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { setUser } = useAuth();
   const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
 
   const [step, setStep] = useState(1);
@@ -102,7 +104,7 @@ export default function SignUpPage() {
 
   const handlePayPalSuccess = async () => {
     try {
-      await createUser.mutateAsync({
+      const user = await createUser.mutateAsync({
         data: {
           email: form.email,
           password: form.password,
@@ -126,6 +128,7 @@ export default function SignUpPage() {
           paypalOrderId: `DEMO-${Date.now()}`,
         },
       });
+      setUser(user);
       toast({ title: "Welcome to MATR!", description: "Your profile has been created." });
       setLocation("/dashboard");
     } catch {

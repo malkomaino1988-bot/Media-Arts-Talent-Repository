@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateJob } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
+import { Link } from "wouter";
 
 const CATEGORIES = [
   "Photography", "Film & Video", "Music", "Graphic Design", "Voice Acting",
@@ -20,6 +22,7 @@ const CATEGORIES = [
 export default function PostJobPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const createJob = useCreateJob();
 
   const [form, setForm] = useState({
@@ -46,11 +49,17 @@ export default function PostJobPage() {
   };
 
   const handlePay = async () => {
+    if (!user) {
+      toast({ title: "Please sign in to post a job", variant: "destructive" });
+      setLocation("/sign-in");
+      return;
+    }
+
     try {
       await createJob.mutateAsync({
         data: {
           ...form,
-          userId: 1,
+          userId: user.id,
           paypalOrderId: `JOB-${Date.now()}`,
         },
       });
@@ -76,7 +85,16 @@ export default function PostJobPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {step === "form" ? (
+        {!isLoading && !isAuthenticated ? (
+          <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
+            <p className="text-gray-500 mb-6">Sign in first to post a job to the directory.</p>
+            <Link href="/sign-in">
+              <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl">
+                Sign In
+              </Button>
+            </Link>
+          </div>
+        ) : step === "form" ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="bg-white rounded-2xl border border-gray-200 p-7 space-y-5">
               <div>

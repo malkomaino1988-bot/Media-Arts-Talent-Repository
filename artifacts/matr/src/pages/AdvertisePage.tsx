@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateAd } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
+import { Link } from "wouter";
 
 const AD_PLACEMENTS = [
   {
@@ -32,6 +34,7 @@ const AD_PLACEMENTS = [
 export default function AdvertisePage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const createAd = useCreateAd();
 
   const [selected, setSelected] = useState<"sidebar" | "footer" | null>(null);
@@ -58,10 +61,16 @@ export default function AdvertisePage() {
   };
 
   const handlePay = async () => {
+    if (!user) {
+      toast({ title: "Please sign in to create an ad", variant: "destructive" });
+      setLocation("/sign-in");
+      return;
+    }
+
     try {
       await createAd.mutateAsync({
         data: {
-          userId: 1,
+          userId: user.id,
           placement: selected!,
           imageUrl,
           linkUrl,
@@ -91,7 +100,16 @@ export default function AdvertisePage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {step === "choose" && (
+        {!isLoading && !isAuthenticated ? (
+          <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
+            <p className="text-gray-500 mb-6">Sign in first to create and manage ad placements.</p>
+            <Link href="/sign-in">
+              <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl">
+                Sign In
+              </Button>
+            </Link>
+          </div>
+        ) : step === "choose" ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h2 className="text-2xl font-black text-black mb-8">Choose Your Placement</h2>
 
@@ -168,9 +186,7 @@ export default function AdvertisePage() {
               Continue with {selectedPlacement?.name ?? "Selected Placement"}
             </Button>
           </motion.div>
-        )}
-
-        {step === "details" && (
+        ) : step === "details" ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h2 className="text-2xl font-black text-black mb-2">Ad Details</h2>
             <p className="text-gray-500 mb-8">
@@ -228,9 +244,7 @@ export default function AdvertisePage() {
               </Button>
             </div>
           </motion.div>
-        )}
-
-        {step === "pay" && (
+        ) : (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h2 className="text-2xl font-black text-black mb-8">Review & Pay</h2>
 

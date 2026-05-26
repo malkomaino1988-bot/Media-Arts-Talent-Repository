@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { User, Image, BarChart2, Edit2, Plus, Trash2 } from "lucide-react";
+import { User, Image, BarChart2, Edit2, Plus, Trash2, Briefcase, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,33 +10,43 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
-  useGetUser,
   useUpdateUser,
   useGetUserMedia,
   useDeleteMedia,
+  useUploadMedia,
+  useListJobs,
+  useListAds,
+  useGetUserMembership,
   getGetUserQueryKey,
   getGetUserMediaQueryKey,
+  getListJobsQueryKey,
+  getListAdsQueryKey,
+  getGetUserMembershipQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-
-const DEMO_USER_ID = 1;
+import { useAuth } from "@/lib/auth";
 
 export default function DashboardPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, isLoading: authLoading, refreshUser } = useAuth();
+  const userId = user?.id ?? 0;
 
-  const { data: user, isLoading: loadingUser } = useGetUser(DEMO_USER_ID, {
-    query: { enabled: true, queryKey: getGetUserQueryKey(DEMO_USER_ID) },
+  const { data: media, isLoading: loadingMedia } = useGetUserMedia(userId, {
+    query: { enabled: !!userId, queryKey: getGetUserMediaQueryKey(userId) },
   });
-
-  const { data: media, isLoading: loadingMedia } = useGetUserMedia(DEMO_USER_ID, {
-    query: { queryKey: getGetUserMediaQueryKey(DEMO_USER_ID) },
+  const { data: jobsData } = useListJobs({}, { query: { queryKey: getListJobsQueryKey({}) } });
+  const { data: adsData } = useListAds({}, { query: { queryKey: getListAdsQueryKey({}) } });
+  const { data: membership } = useGetUserMembership(userId, {
+    query: { enabled: !!userId, queryKey: getGetUserMembershipQueryKey(userId) },
   });
 
   const updateUser = useUpdateUser();
   const deleteMedia = useDeleteMedia();
+  const uploadMedia = useUploadMedia();
 
   const [editing, setEditing] = useState(false);
+  const [newMedia, setNewMedia] = useState({ title: "", url: "", mediaType: "image" });
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -45,6 +56,18 @@ export default function DashboardPage() {
     province: "ON",
     website: "",
   });
+
+  const userJobs = jobsData?.jobs.filter((job) => job.userId === userId) ?? [];
+  const userAds = adsData?.filter((ad) => ad.userId === userId) ?? [];
+  const profileCompleteness = user
+    ? [
+        user.bio,
+        user.jobTitle,
+        user.website,
+        user.profilePhotoUrl,
+        user.talentTags.length > 0 ? "tags" : "",
+      ].filter(Boolean).length * 20
+    : 0;
 
   const startEdit = () => {
     if (user) {
@@ -63,8 +86,9 @@ export default function DashboardPage() {
 
   const saveProfile = async () => {
     try {
-      await updateUser.mutateAsync({ id: DEMO_USER_ID, data: form });
-      queryClient.invalidateQueries({ queryKey: getGetUserQueryKey(DEMO_USER_ID) });
+      await updateUser.mutateAsync({ id: userId, data: form });
+      queryClient.invalidateQueries({ queryKey: getGetUserQueryKey(userId) });
+      await refreshUser();
       toast({ title: "Profile updated!" });
       setEditing(false);
     } catch {
@@ -75,14 +99,37 @@ export default function DashboardPage() {
   const handleDeleteMedia = async (id: number) => {
     try {
       await deleteMedia.mutateAsync({ id });
-      queryClient.invalidateQueries({ queryKey: getGetUserMediaQueryKey(DEMO_USER_ID) });
+      queryClient.invalidateQueries({ queryKey: getGetUserMediaQueryKey(userId) });
       toast({ title: "Media deleted" });
     } catch {
       toast({ title: "Failed to delete media", variant: "destructive" });
     }
   };
 
-  if (loadingUser) {
+  const handleAddMedia = async () => {
+    if (!newMedia.url) {
+      toast({ title: "Please provide a media URL", variant: "destructive" });
+      return;
+    }
+
+    try {
+      await uploadMedia.mutateAsync({
+        data: {
+          userId,
+          url: newMedia.url,
+          title: newMedia.title || null,
+          mediaType: newMedia.mediaType as "image" | "video" | "audio",
+        },
+      });
+      queryClient.invalidateQueries({ queryKey: getGetUserMediaQueryKey(userId) });
+      setNewMedia({ title: "", url: "", mediaType: "image" });
+      toast({ title: "Media added" });
+    } catch {
+      toast({ title: "Failed to add media", variant: "destructive" });
+    }
+  };
+
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
         <div className="text-center">
@@ -98,20 +145,40 @@ export default function DashboardPage() {
       <div className="bg-black text-white py-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-black mb-1">Dashboard</h1>
-          <p className="text-white/50">Manage your MATR profile</p>
+          <p className="text-white/50">Manage your MATR profile, media, postings, and account.</p>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!user ? (
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
-            <p className="text-gray-500 mb-6">No profile found. Please sign in or create an account.</p>
-            <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl">
-              Sign In
-            </Button>
+            <p className="text-gray-500 mb-6">Please sign in or create an account to access your dashboard.</p>
+            <Link href="/sign-in">
+              <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl">
+                Sign In
+              </Button>
+            </Link>
           </div>
         ) : (
-          <Tabs defaultValue="profile">
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              {[
+                { label: "Profile Completion", value: `${profileCompleteness}%`, icon: User },
+                { label: "Media Items", value: String(media?.length ?? 0), icon: Image },
+                { label: "Active Jobs", value: String(userJobs.length), icon: Briefcase },
+                { label: "Ad Placements", value: String(userAds.length), icon: Monitor },
+              ].map((card) => (
+                <div key={card.label} className="bg-white rounded-2xl border border-gray-200 p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <card.icon size={16} className="text-[#E50914]" />
+                    <span className="text-xs text-gray-500 font-medium">{card.label}</span>
+                  </div>
+                  <p className="text-3xl font-black text-black">{card.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <Tabs defaultValue="profile">
             <TabsList className="mb-6 bg-white rounded-xl p-1 border border-gray-200">
               <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-black data-[state=active]:text-white">
                 <User size={15} className="mr-2" />
@@ -212,6 +279,24 @@ export default function DashboardPage() {
                         data-testid="input-edit-website"
                       />
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-semibold">City</Label>
+                        <Input
+                          value={form.city}
+                          onChange={(e) => setForm((current) => ({ ...current, city: e.target.value }))}
+                          className="mt-1 rounded-xl"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold">Province</Label>
+                        <Input
+                          value={form.province}
+                          onChange={(e) => setForm((current) => ({ ...current, province: e.target.value }))}
+                          className="mt-1 rounded-xl"
+                        />
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <dl className="space-y-4">
@@ -245,6 +330,10 @@ export default function DashboardPage() {
                         </dd>
                       </div>
                     )}
+                    <div>
+                      <dt className="text-xs text-gray-400 uppercase tracking-wider mb-1">Location</dt>
+                      <dd className="font-semibold text-black">{user.city}, {user.province}</dd>
+                    </div>
                     {user.talentTags.length > 0 && (
                       <div>
                         <dt className="text-xs text-gray-400 uppercase tracking-wider mb-2">Talent Tags</dt>
@@ -266,7 +355,24 @@ export default function DashboardPage() {
               <div className="bg-white rounded-2xl border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="font-bold text-black text-xl">Media Gallery</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_1.3fr_auto] gap-3 mb-6">
+                  <Input
+                    value={newMedia.title}
+                    onChange={(e) => setNewMedia((current) => ({ ...current, title: e.target.value }))}
+                    placeholder="Title (optional)"
+                    className="rounded-xl"
+                  />
+                  <Input
+                    value={newMedia.url}
+                    onChange={(e) => setNewMedia((current) => ({ ...current, url: e.target.value }))}
+                    placeholder="https://your-media-url"
+                    className="rounded-xl"
+                  />
                   <Button
+                    onClick={handleAddMedia}
+                    disabled={uploadMedia.isPending}
                     className="bg-black hover:bg-gray-800 text-white rounded-xl gap-2"
                     data-testid="button-add-media"
                   >
@@ -313,26 +419,69 @@ export default function DashboardPage() {
 
             <TabsContent value="analytics">
               <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h2 className="font-bold text-black text-xl mb-6">Profile Analytics</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <h2 className="font-bold text-black text-xl mb-6">Account Snapshot</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                   {[
-                    { label: "Profile Views", value: "—" },
-                    { label: "Search Appearances", value: "—" },
-                    { label: "Contact Clicks", value: "—" },
-                    { label: "Media Views", value: "—" },
+                    { label: "Membership", value: membership?.planName ?? user.planName ?? "None" },
+                    { label: "Expires", value: membership?.expiresAt ? new Date(membership.expiresAt).toLocaleDateString() : "—" },
+                    { label: "Jobs Posted", value: String(userJobs.length) },
+                    { label: "Ads Running", value: String(userAds.length) },
                   ].map((stat) => (
                     <div key={stat.label} className="bg-[#F5F5F5] rounded-xl p-4 text-center" data-testid={`stat-${stat.label.toLowerCase().replace(/\s+/g, "-")}`}>
-                      <p className="text-2xl font-black text-black">{stat.value}</p>
+                      <p className="text-lg font-black text-black break-words">{stat.value}</p>
                       <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
                     </div>
                   ))}
                 </div>
-                <p className="text-center text-gray-400 text-sm mt-8">
-                  Analytics tracking will be available soon
-                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border border-gray-200 rounded-xl p-5">
+                    <h3 className="font-bold text-black mb-3">Your Jobs</h3>
+                    {userJobs.length > 0 ? (
+                      <div className="space-y-3">
+                        {userJobs.slice(0, 3).map((job) => (
+                          <div key={job.id} className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="font-medium text-sm text-black">{job.title}</p>
+                              <p className="text-xs text-gray-500">{job.city}</p>
+                            </div>
+                            <span className="text-xs bg-black text-white rounded-full px-2 py-1">{job.category}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 mb-4">No job postings yet.</p>
+                    )}
+                    <Link href="/post-job">
+                      <Button variant="outline" className="mt-4 rounded-xl w-full">Post a Job</Button>
+                    </Link>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-xl p-5">
+                    <h3 className="font-bold text-black mb-3">Your Ads</h3>
+                    {userAds.length > 0 ? (
+                      <div className="space-y-3">
+                        {userAds.slice(0, 3).map((ad) => (
+                          <div key={ad.id} className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="font-medium text-sm text-black capitalize">{ad.placement}</p>
+                              <p className="text-xs text-gray-500">{ad.status}</p>
+                            </div>
+                            <span className="text-xs bg-[#F5F5F5] rounded-full px-2 py-1">${ad.priceMonthly}/mo</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 mb-4">No ad placements yet.</p>
+                    )}
+                    <Link href="/advertise">
+                      <Button variant="outline" className="mt-4 rounded-xl w-full">Create an Ad</Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </TabsContent>
-          </Tabs>
+            </Tabs>
+          </>
         )}
       </div>
     </div>

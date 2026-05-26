@@ -20,10 +20,13 @@ import {
 import { useDeleteUser, useDeleteJob, useDeleteAd } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
+import { Link } from "wouter";
 
 export default function AdminPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, isLoading } = useAuth();
 
   const { data: stats } = useGetStatsOverview({ query: { queryKey: getGetStatsOverviewQueryKey() } });
   const { data: talentBreakdown } = useGetTalentTypeBreakdown({ query: { queryKey: getGetTalentTypeBreakdownQueryKey() } });
@@ -74,6 +77,45 @@ export default function AdminPage() {
     { icon: Monitor, label: "Active Ads", value: stats?.activeAds ?? "—", sub: "placements" },
     { icon: TrendingUp, label: "Total Revenue", value: stats ? `$${stats.totalRevenue.toLocaleString()}` : "—", sub: "from memberships" },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500">Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center max-w-xl">
+          <h1 className="text-3xl font-black text-black mb-3">Admin Access</h1>
+          <p className="text-gray-500 mb-6">Sign in with an admin account to manage users, jobs, ads, and platform reporting.</p>
+          <Link href="/sign-in">
+            <Button className="bg-[#E50914] hover:bg-[#b40710] text-white">Sign In</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center max-w-xl">
+          <h1 className="text-3xl font-black text-black mb-3">Admin Only</h1>
+          <p className="text-gray-500 mb-6">Your current account does not have admin access. You can still manage your own profile and postings from the dashboard.</p>
+          <Link href="/dashboard">
+            <Button className="bg-[#E50914] hover:bg-[#b40710] text-white">Go to Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
