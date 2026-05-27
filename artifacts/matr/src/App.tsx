@@ -15,6 +15,9 @@ import JobsPage from "@/pages/JobsPage";
 import AdvertisePage from "@/pages/AdvertisePage";
 import DashboardPage from "@/pages/DashboardPage";
 import AdminPage from "@/pages/AdminPage";
+import SupportPage from "@/pages/SupportPage";
+import PrivacyPage from "@/pages/PrivacyPage";
+import TermsPage from "@/pages/TermsPage";
 import NotFound from "@/pages/not-found";
 import { AuthProvider } from "@/lib/auth";
 
@@ -44,6 +47,9 @@ function Router() {
           <Route path="/advertise" component={AdvertisePage} />
           <Route path="/dashboard" component={DashboardPage} />
           <Route path="/admin" component={AdminPage} />
+          <Route path="/support" component={SupportPage} />
+          <Route path="/privacy" component={PrivacyPage} />
+          <Route path="/terms" component={TermsPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

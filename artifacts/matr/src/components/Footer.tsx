@@ -47,7 +47,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-4">
+        <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-5">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="flex h-9 w-9 items-center justify-center rounded-[0.9rem] bg-[#E50914] shadow-[0_14px_24px_rgba(229,9,20,0.22)]">
@@ -112,6 +112,27 @@ export default function Footer() {
                 { href: "/sign-in", label: "Sign In" },
                 { href: "/dashboard", label: "Dashboard" },
                 { href: "/admin", label: "Admin Portal" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href}>
+                    <span className="text-gray-400 hover:text-white text-sm transition-colors cursor-pointer">
+                      {link.label}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-4">
+              Trust
+            </h4>
+            <ul className="space-y-2">
+              {[
+                { href: "/support", label: "Support" },
+                { href: "/privacy", label: "Privacy Policy" },
+                { href: "/terms", label: "Terms of Use" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href}>

@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/membership", label: "Membership Plans" },
   { href: "/post-job", label: "Post a Job" },
   { href: "/advertise", label: "Advertise" },
+  { href: "/support", label: "Support" },
 ];
 
 export default function Navbar() {

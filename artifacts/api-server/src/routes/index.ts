@@ -2,6 +2,9 @@ import { Router, type IRouter } from "express";
 import { hasDatabase } from "@workspace/db";
 
 const router: IRouter = Router();
+const { default: supportRouter } = await import("./support");
+
+router.use(supportRouter);
 
 if (hasDatabase) {
   const [
