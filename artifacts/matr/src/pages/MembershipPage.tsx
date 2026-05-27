@@ -78,7 +78,7 @@ export default function MembershipPage() {
         },
       });
       toast({ title: "Membership activated", description: `${plan.name} is now attached to your account.` });
-      setLocation("/dashboard");
+      setLocation(`/dashboard?success=membership-${encodeURIComponent(slug)}`);
     } catch {
       toast({ title: "Failed to activate membership", variant: "destructive" });
     }

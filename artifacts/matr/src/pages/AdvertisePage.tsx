@@ -91,7 +91,7 @@ export default function AdvertisePage() {
         },
       });
       toast({ title: "Advertisement submitted", description: "Your placement is now attached to your account dashboard." });
-      setLocation("/dashboard");
+      setLocation("/dashboard?success=ad-created");
     } catch {
       toast({ title: "Failed to create ad", variant: "destructive" });
     }

@@ -13,6 +13,7 @@ import {
   Monitor,
   ExternalLink,
   MapPin,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +66,9 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user, isLoading: authLoading, refreshUser } = useAuth();
+  const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
   const userId = user?.id ?? 0;
+  const successState = searchParams.get("success");
 
   const { data: media, isLoading: loadingMedia } = useGetUserMedia(userId, {
     query: { enabled: !!userId, queryKey: getGetUserMediaQueryKey(userId) },
@@ -126,6 +129,34 @@ export default function DashboardPage() {
     { label: "Add your contact links", done: Boolean(user?.website || user?.instagram || user?.linkedin || user?.twitter) },
     { label: "Choose talent tags", done: Boolean(user?.talentTags.length) },
   ];
+  const successConfig = successState === "job-posted"
+    ? {
+        title: "Job posted successfully",
+        description: "Your listing is now attached to your account. Review it, then open the public board to see how it appears to applicants.",
+        primaryHref: "/jobs",
+        primaryLabel: "Review the Job Board",
+        secondaryHref: "/post-job",
+        secondaryLabel: "Post Another Role",
+      }
+    : successState === "ad-created"
+      ? {
+          title: "Ad placement created",
+          description: "Your campaign is attached to this account. Review your dashboard, then create another placement if you need more visibility.",
+          primaryHref: "/advertise",
+          primaryLabel: "Create Another Placement",
+          secondaryHref: "/membership",
+          secondaryLabel: "Strengthen Brand Presence",
+        }
+      : successState?.startsWith("membership-")
+        ? {
+            title: "Membership activated",
+            description: "Your plan is live. Finish the strongest version of your profile now so the upgrade turns into visibility and action.",
+            primaryHref: `/talent/${userId}`,
+            primaryLabel: "Preview Public Profile",
+            secondaryHref: "/membership",
+            secondaryLabel: "Review Membership",
+          }
+        : null;
 
   const startEdit = () => {
     if (user) {
@@ -285,6 +316,31 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
+            {successConfig && (
+              <div className="mb-6 rounded-[1.8rem] border border-[#E50914]/15 bg-white p-6">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.22em] text-[#E50914] mb-2">Success</p>
+                    <h2 className="text-2xl font-black text-black mb-2">{successConfig.title}</h2>
+                    <p className="max-w-2xl text-sm text-gray-500">{successConfig.description}</p>
+                  </div>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <Link href={successConfig.primaryHref}>
+                      <Button className="rounded-xl bg-[#E50914] text-white hover:bg-[#b40710] gap-2">
+                        {successConfig.primaryLabel}
+                        <ArrowRight size={15} />
+                      </Button>
+                    </Link>
+                    <Link href={successConfig.secondaryHref}>
+                      <Button variant="outline" className="rounded-xl">
+                        {successConfig.secondaryLabel}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
               {[
                 { label: "Profile Completion", value: `${profileCompleteness}%`, icon: User, sub: "Public profile readiness" },

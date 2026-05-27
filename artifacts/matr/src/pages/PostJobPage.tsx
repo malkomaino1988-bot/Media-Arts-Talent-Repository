@@ -69,7 +69,7 @@ export default function PostJobPage() {
         },
       });
       toast({ title: "Job posted successfully", description: "Your listing is now live and visible on the job board." });
-      setLocation("/dashboard");
+      setLocation("/dashboard?success=job-posted");
     } catch {
       toast({ title: "Failed to post job", variant: "destructive" });
     }
