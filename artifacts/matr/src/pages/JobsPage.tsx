@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useListJobs, getListJobsQueryKey } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const CATEGORIES = [
   "Photography", "Film & Video", "Music", "Graphic Design", "Voice Acting",
@@ -15,6 +17,7 @@ const CATEGORIES = [
 const CITIES = ["Windsor", "Tecumseh", "LaSalle", "Amherstburg", "Essex", "Leamington"];
 
 export default function JobsPage() {
+  const { isAuthenticated } = useAuth();
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("");
   const [category, setCategory] = useState("");
@@ -265,9 +268,9 @@ export default function JobsPage() {
                   Browse Talent
                 </Button>
               </Link>
-              <Link href="/post-job">
+              <Link href={isAuthenticated ? "/post-job" : buildAuthHref("/sign-up", { redirectTo: "/post-job" })}>
                 <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl" data-testid="button-first-job">
-                  Post a Job
+                  {isAuthenticated ? "Post a Job" : "Create Account to Post"}
                 </Button>
               </Link>
             </div>

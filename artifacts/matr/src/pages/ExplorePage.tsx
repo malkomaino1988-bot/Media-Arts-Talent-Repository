@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import TalentCard from "@/components/TalentCard";
 import { useListTalents, getListTalentsQueryKey } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const TALENT_TYPES = [
   "Photographer", "Filmmaker", "Videographer", "Musician", "Voice Actor",
@@ -22,6 +24,7 @@ const TALENT_TYPES = [
 const CITIES = ["Windsor", "Tecumseh", "LaSalle", "Amherstburg", "Essex", "Leamington"];
 
 export default function ExplorePage() {
+  const { isAuthenticated } = useAuth();
   const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
   const initialTalentType = searchParams.get("talentType") ?? "";
 
@@ -308,9 +311,14 @@ export default function ExplorePage() {
               >
                 Clear Search
               </Button>
-              <a href="/membership" className="inline-flex">
+              <a href="/jobs" className="inline-flex">
+                <Button variant="outline" className="rounded-xl">
+                  Browse Jobs
+                </Button>
+              </a>
+              <a href={isAuthenticated ? "/dashboard" : buildAuthHref("/sign-up", { redirectTo: "/membership" })} className="inline-flex">
                 <Button className="bg-[#E50914] hover:bg-[#b40710] text-white rounded-xl gap-2">
-                  Upgrade a Profile
+                  {isAuthenticated ? "Open Dashboard" : "Create a Profile"}
                   <ArrowRight size={15} />
                 </Button>
               </a>

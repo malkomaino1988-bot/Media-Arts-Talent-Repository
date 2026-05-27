@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import TalentCard from "@/components/TalentCard";
 import PlanCard from "@/components/PlanCard";
 import { useGetFeaturedTalents, useGetMembershipPlans } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const TALENT_TYPES = [
   "Photographer", "Filmmaker", "Videographer", "Musician", "Voice Actor",
@@ -53,6 +55,7 @@ const WORKFLOWS = [
 export default function HomePage() {
   const [planToggle, setPlanToggle] = useState<"individual" | "business">("individual");
   const [searchQuery, setSearchQuery] = useState("");
+  const { isAuthenticated } = useAuth();
 
   const { data: featuredTalents, isLoading: loadingTalents } = useGetFeaturedTalents();
   const { data: plans, isLoading: loadingPlans } = useGetMembershipPlans();
@@ -100,14 +103,14 @@ export default function HomePage() {
                     <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Link href="/sign-up">
+                <Link href={isAuthenticated ? "/dashboard" : buildAuthHref("/sign-up", { redirectTo: "/membership" })}>
                   <Button
                     size="lg"
                     variant="outline"
                     className="border-white/20 text-white bg-white/6 hover:bg-white/12 font-bold text-base px-8 h-12 rounded-xl backdrop-blur-sm"
                     data-testid="button-join-directory"
                   >
-                    Join the Directory
+                    {isAuthenticated ? "Open Dashboard" : "Join the Directory"}
                   </Button>
                 </Link>
               </div>
@@ -230,9 +233,9 @@ export default function HomePage() {
                 MATR is strongest when every page leads naturally into the next step. These are the three paths that matter most.
               </p>
             </div>
-            <Link href="/dashboard">
+            <Link href={isAuthenticated ? "/dashboard" : buildAuthHref("/sign-in", { redirectTo: "/dashboard" })}>
               <Button variant="outline" className="rounded-xl border-black text-black hover:bg-black hover:text-white">
-                View Member Dashboard
+                {isAuthenticated ? "View Member Dashboard" : "Sign In for Dashboard"}
               </Button>
             </Link>
           </div>
@@ -584,13 +587,13 @@ export default function HomePage() {
                 Plans range from $25/year to $250/yr.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/sign-up">
+                <Link href={isAuthenticated ? "/membership" : buildAuthHref("/sign-up", { redirectTo: "/membership" })}>
                   <Button
                     size="lg"
                     className="bg-white text-[#E50914] hover:bg-gray-100 font-bold px-10 h-12 rounded-xl"
                     data-testid="button-cta-join"
                   >
-                    Join the Directory
+                    {isAuthenticated ? "Choose a Plan" : "Join the Directory"}
                   </Button>
                 </Link>
                 <Link href="/explore">

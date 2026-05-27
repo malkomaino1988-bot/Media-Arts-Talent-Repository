@@ -1,8 +1,12 @@
 import { Link } from "wouter";
 import { Compass, Briefcase, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 export default function NotFound() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center px-4 py-16">
       <div className="max-w-4xl w-full bg-white rounded-[2rem] border border-gray-200 overflow-hidden shadow-sm">
@@ -39,10 +43,15 @@ export default function NotFound() {
                   Browse Jobs
                 </Button>
               </Link>
-              <Link href="/dashboard">
+              <Link href={isAuthenticated ? "/dashboard" : buildAuthHref("/sign-in", { redirectTo: "/dashboard" })}>
                 <Button variant="outline" className="w-full justify-start rounded-2xl h-12 gap-2">
                   <LayoutDashboard size={16} />
-                  Open Dashboard
+                  {isAuthenticated ? "Open Dashboard" : "Sign In for Dashboard"}
+                </Button>
+              </Link>
+              <Link href={isAuthenticated ? "/membership" : buildAuthHref("/sign-up", { redirectTo: "/membership" })}>
+                <Button variant="outline" className="w-full justify-start rounded-2xl h-12">
+                  {isAuthenticated ? "View Membership" : "Create Account"}
                 </Button>
               </Link>
             </div>
