@@ -208,6 +208,21 @@ export default function AdminPage() {
     }
   };
 
+  const resetUserFilters = () => {
+    setUserSearch("");
+    setUserPlan("All Plans");
+  };
+
+  const resetJobFilters = () => {
+    setJobSearch("");
+    setJobCity("");
+    setJobStatus("all");
+  };
+
+  const resetAdFilters = () => {
+    setAdSearch("");
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
@@ -458,7 +473,11 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )) : (
-                  <div className="p-10 text-center text-gray-400">No users match the current filters.</div>
+                  <div className="p-10 text-center">
+                    <p className="text-black font-semibold mb-1">No users match the current filters</p>
+                    <p className="text-sm text-gray-500 mb-4">Clear the search or plan filter to return to the full member list.</p>
+                    <Button variant="outline" className="rounded-xl" onClick={resetUserFilters}>Clear User Filters</Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -523,7 +542,11 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )) : (
-                  <div className="p-10 text-center text-gray-400">No job postings match the current filters.</div>
+                  <div className="p-10 text-center">
+                    <p className="text-black font-semibold mb-1">No job postings match the current filters</p>
+                    <p className="text-sm text-gray-500 mb-4">Reset the job search, city, or status filters to resume moderation.</p>
+                    <Button variant="outline" className="rounded-xl" onClick={resetJobFilters}>Clear Job Filters</Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -577,7 +600,11 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )) : (
-                  <div className="p-10 text-center text-gray-400">No advertisements match the current filters.</div>
+                  <div className="p-10 text-center">
+                    <p className="text-black font-semibold mb-1">No advertisements match the current filters</p>
+                    <p className="text-sm text-gray-500 mb-4">Clear the ad search to review every placement again.</p>
+                    <Button variant="outline" className="rounded-xl" onClick={resetAdFilters}>Clear Ad Search</Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -636,7 +663,10 @@ export default function AdminPage() {
                     </p>
                   </div>
                 )) : (
-                  <div className="p-10 text-center text-gray-400">No admin activity has been logged yet.</div>
+                  <div className="p-10 text-center">
+                    <p className="text-black font-semibold mb-1">No admin activity has been logged yet</p>
+                    <p className="text-sm text-gray-500">Sign-ins and moderation actions will appear here as soon as the admin team starts using the control room.</p>
+                  </div>
                 )}
               </div>
             </div>

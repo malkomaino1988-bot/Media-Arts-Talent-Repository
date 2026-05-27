@@ -37,12 +37,21 @@ export default function TalentProfilePage() {
 
   if (!talent) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="max-w-xl rounded-[2rem] border border-gray-200 bg-[#F5F5F5] p-10 text-center">
+          <p className="text-xs uppercase tracking-[0.24em] text-[#E50914] mb-3">Profile Unavailable</p>
           <h1 className="text-4xl font-black text-black mb-4">Talent Not Found</h1>
-          <Link href="/explore">
-            <Button className="bg-[#E50914] hover:bg-[#b40710] text-white">Back to Explore</Button>
-          </Link>
+          <p className="text-gray-500 mb-6">
+            This profile may have been removed or the link may be outdated. Keep moving by returning to the directory or opening current opportunities.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link href="/explore">
+              <Button className="bg-[#E50914] hover:bg-[#b40710] text-white">Back to Explore</Button>
+            </Link>
+            <Link href="/jobs">
+              <Button variant="outline">Browse Jobs</Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -187,9 +196,17 @@ export default function TalentProfilePage() {
               ) : (
                 <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6">
                   <p className="text-black font-semibold mb-1">Portfolio updates coming soon</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 mb-4">
                     This profile is active in the directory, but media samples have not been added yet.
                   </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link href="/explore">
+                      <Button variant="outline" className="rounded-xl">Discover More Talent</Button>
+                    </Link>
+                    <Link href="/jobs">
+                      <Button className="rounded-xl bg-[#E50914] hover:bg-[#b40710] text-white">Browse Jobs</Button>
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

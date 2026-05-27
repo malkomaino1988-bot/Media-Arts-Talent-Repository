@@ -256,6 +256,18 @@ export default function DashboardPage() {
     }
   };
 
+  const resetSuccessState = () => {
+    if (typeof window === "undefined" || !successState) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    params.delete("success");
+    const nextSearch = params.toString();
+    const nextUrl = nextSearch ? `${window.location.pathname}?${nextSearch}` : window.location.pathname;
+    window.history.replaceState({}, "", nextUrl);
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
@@ -754,7 +766,17 @@ export default function DashboardPage() {
                     <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-2xl">
                       <Image size={32} className="text-gray-300 mx-auto mb-3" />
                       <p className="text-black font-semibold mb-1">No media uploaded yet</p>
-                      <p className="text-gray-400 text-sm">Add links to stills, reels, playlists, or documents so your profile is ready to be reviewed.</p>
+                      <p className="text-gray-400 text-sm mb-4">Add links to stills, reels, playlists, or documents so your profile is ready to be reviewed.</p>
+                      <div className="flex flex-wrap items-center justify-center gap-3">
+                        <Button variant="outline" className="rounded-xl" onClick={startEdit}>
+                          Update Profile First
+                        </Button>
+                        <Link href={`/talent/${user.id}`}>
+                          <Button className="rounded-xl bg-[#E50914] hover:bg-[#b40710] text-white">
+                            Preview Public Profile
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -818,7 +840,22 @@ export default function DashboardPage() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-500">No job postings yet. Add one when you need cast, crew, or collaborators.</p>
+                        <div className="rounded-2xl border border-dashed border-gray-200 bg-[#F5F5F5] p-5">
+                          <p className="text-sm font-semibold text-black mb-1">No job postings yet</p>
+                          <p className="text-sm text-gray-500 mb-4">Create your first listing when you need cast, crew, or collaborators.</p>
+                          <div className="flex flex-wrap gap-3">
+                            <Link href="/post-job">
+                              <Button className="rounded-xl bg-[#E50914] hover:bg-[#b40710] text-white">
+                                Post Your First Job
+                              </Button>
+                            </Link>
+                            <Link href="/jobs">
+                              <Button variant="outline" className="rounded-xl">
+                                Browse the Job Board
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
                       )}
                     </div>
 
@@ -842,13 +879,35 @@ export default function DashboardPage() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-500">No ad placements yet. Promote your brand or project when you are ready.</p>
+                        <div className="rounded-2xl border border-dashed border-gray-200 bg-[#F5F5F5] p-5">
+                          <p className="text-sm font-semibold text-black mb-1">No ad placements yet</p>
+                          <p className="text-sm text-gray-500 mb-4">Launch a placement when you want to promote your brand, project, or service inside the directory.</p>
+                          <div className="flex flex-wrap gap-3">
+                            <Link href="/advertise">
+                              <Button className="rounded-xl bg-[#E50914] hover:bg-[#b40710] text-white">
+                                Create a Placement
+                              </Button>
+                            </Link>
+                            <Link href="/membership">
+                              <Button variant="outline" className="rounded-xl">
+                                Review Promotion Options
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
               </TabsContent>
             </Tabs>
+            {successConfig && (
+              <div className="mt-6 flex justify-end">
+                <Button variant="ghost" className="rounded-xl text-gray-500 hover:text-black" onClick={resetSuccessState}>
+                  Dismiss success message
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>
