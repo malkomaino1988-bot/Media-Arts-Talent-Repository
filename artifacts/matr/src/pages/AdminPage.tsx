@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Users, Briefcase, Monitor, BarChart2, TrendingUp, ShieldCheck, Search, Eye, Sparkles, Activity } from "lucide-react";
+import { Users, Briefcase, Monitor, BarChart2, TrendingUp, ShieldCheck, Search, Eye, Sparkles, Activity, Headphones } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,30 @@ type AdminActivityEntry = {
   summary: string;
   details?: Record<string, string | number | boolean | null>;
   createdAt: string;
+};
+
+type SupportTopicOption = {
+  value: string;
+  label: string;
+  responseWindow: string;
+};
+
+type AdminSupportEntry = {
+  id: string;
+  name: string;
+  email: string;
+  topic: string;
+  message: string;
+  organization: string | null;
+  createdAt: string;
+  status: "new";
+};
+
+type SupportQueueResponse = {
+  total: number;
+  newCount: number;
+  topics: SupportTopicOption[];
+  requests: AdminSupportEntry[];
 };
 
 export default function AdminPage() {
@@ -107,6 +131,17 @@ export default function AdminPage() {
       return response.json() as Promise<AdminActivityEntry[]>;
     },
   });
+  const { data: supportQueue, isLoading: loadingSupport } = useQuery<SupportQueueResponse>({
+    queryKey: ["admin-support-queue"],
+    queryFn: async () => {
+      const response = await fetch("/api/support/requests");
+      if (!response.ok) {
+        throw new Error("Failed to load support queue");
+      }
+
+      return response.json() as Promise<SupportQueueResponse>;
+    },
+  });
   const { data: adsData, isLoading: loadingAds } = useListAds({}, {
     query: { queryKey: getListAdsQueryKey({}) },
   });
@@ -135,12 +170,16 @@ export default function AdminPage() {
   const pendingAds = filteredAds.filter((ad) => ad.status === "pending").length;
   const inactiveUsers = usersData?.users.filter((entry) => !entry.isActive).length ?? 0;
   const draftJobs = jobsData?.jobs.filter((job: JobListResponse["jobs"][number]) => job.status === "draft").length ?? 0;
+  const supportNewCount = supportQueue?.newCount ?? 0;
+  const supportRequests = supportQueue?.requests ?? [];
+  const topicLabels = new Map((supportQueue?.topics ?? []).map((topic) => [topic.value, topic.label]));
 
   const invalidateAdminData = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: getListUsersQueryKey(usersParams) }),
       queryClient.invalidateQueries({ queryKey: ["admin-jobs"] }),
       queryClient.invalidateQueries({ queryKey: ["admin-activity"] }),
+      queryClient.invalidateQueries({ queryKey: ["admin-support-queue"] }),
       queryClient.invalidateQueries({ queryKey: getListAdsQueryKey({}) }),
       queryClient.invalidateQueries({ queryKey: getGetStatsOverviewQueryKey() }),
       queryClient.invalidateQueries({ queryKey: getGetTalentTypeBreakdownQueryKey() }),
@@ -266,9 +305,11 @@ export default function AdminPage() {
     { icon: Users, label: "Total Users", value: stats?.totalUsers ?? "-", sub: `${stats?.activeUsers ?? 0} active` },
     { icon: Briefcase, label: "Live Jobs", value: stats?.activeJobs ?? "-", sub: `${stats?.totalJobs ?? 0} total jobs` },
     { icon: Monitor, label: "Pending Ads", value: pendingAds, sub: `${stats?.activeAds ?? 0} active ads` },
+    { icon: Headphones, label: "Support Queue", value: supportNewCount, sub: `${supportQueue?.total ?? 0} total requests` },
     { icon: TrendingUp, label: "Revenue", value: stats ? `$${stats.totalRevenue.toLocaleString()}` : "-", sub: `${activeMemberships} active memberships` },
   ];
   const priorityQueue = [
+    { label: "New support requests", value: supportNewCount, urgent: supportNewCount > 0 },
     { label: "Pending ads to review", value: pendingAds, urgent: pendingAds > 0 },
     { label: "Inactive users needing attention", value: inactiveUsers, urgent: inactiveUsers > 0 },
     { label: "Draft jobs not yet live", value: draftJobs, urgent: draftJobs > 0 },
@@ -287,7 +328,7 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
           {statCards.map((card, index) => (
             <motion.div
               key={card.label}
@@ -312,7 +353,7 @@ export default function AdminPage() {
               <Sparkles size={18} className="text-[#E50914]" />
               <h2 className="font-bold text-black">Admin Priorities</h2>
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {priorityQueue.map((item) => (
                 <div key={item.label} className="rounded-xl border border-gray-100 bg-[#F5F5F5] p-4">
                   <p className={`text-2xl font-black ${item.urgent ? "text-[#E50914]" : "text-black"}`}>{item.value}</p>
@@ -404,6 +445,10 @@ export default function AdminPage() {
             <TabsTrigger value="activity" className="rounded-lg data-[state=active]:bg-black data-[state=active]:text-white">
               <TrendingUp size={15} className="mr-2" />
               Activity
+            </TabsTrigger>
+            <TabsTrigger value="support" className="rounded-lg data-[state=active]:bg-black data-[state=active]:text-white">
+              <Headphones size={15} className="mr-2" />
+              Support
             </TabsTrigger>
           </TabsList>
 
@@ -666,6 +711,47 @@ export default function AdminPage() {
                   <div className="p-10 text-center">
                     <p className="text-black font-semibold mb-1">No admin activity has been logged yet</p>
                     <p className="text-sm text-gray-500">Sign-ins and moderation actions will appear here as soon as the admin team starts using the control room.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="support">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                <div>
+                  <h2 className="font-bold text-black">Support Queue ({supportQueue?.total ?? 0})</h2>
+                  <p className="text-sm text-gray-500">Review the requests that came in through the public support page.</p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-[#F5F5F5] px-4 py-2 text-sm text-gray-600">
+                  New requests: <span className="font-black text-[#E50914]">{supportNewCount}</span>
+                </div>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {loadingSupport ? (
+                  <div className="p-10 text-center text-gray-400">Loading support queue...</div>
+                ) : supportRequests.length > 0 ? supportRequests.map((entry) => (
+                  <div key={entry.id} className="px-5 py-5">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <p className="font-semibold text-sm text-black">{entry.name}</p>
+                          <Badge variant="secondary" className="text-xs">{topicLabels.get(entry.topic) ?? entry.topic}</Badge>
+                          {entry.organization && <Badge variant="outline" className="text-xs">{entry.organization}</Badge>}
+                        </div>
+                        <p className="text-xs text-gray-500 mb-2">{entry.email} | {new Date(entry.createdAt).toLocaleString()}</p>
+                        <p className="text-sm leading-7 text-gray-600 max-w-4xl">{entry.message}</p>
+                      </div>
+                      <div className="rounded-xl border border-gray-200 bg-[#F5F5F5] px-4 py-3 text-xs text-gray-500">
+                        Status: <span className="font-bold uppercase tracking-[0.18em] text-black">{entry.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="p-10 text-center">
+                    <p className="text-black font-semibold mb-1">No support requests yet</p>
+                    <p className="text-sm text-gray-500">Requests submitted from the public support page will appear here for the admin team.</p>
                   </div>
                 )}
               </div>

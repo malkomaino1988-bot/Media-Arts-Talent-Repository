@@ -33,6 +33,15 @@ const topics: Array<{ value: SupportTopic; label: string; responseWindow: string
   { value: "partnership", label: "Partnership inquiry", responseWindow: "within 2 business days" },
 ];
 
+router.get("/support/requests", (_req, res) => {
+  res.json({
+    total: supportInbox.length,
+    newCount: supportInbox.filter((entry) => entry.status === "new").length,
+    topics,
+    requests: supportInbox,
+  });
+});
+
 router.get("/support/meta", (_req, res) => {
   res.json({
     email: "support@matr.local",
