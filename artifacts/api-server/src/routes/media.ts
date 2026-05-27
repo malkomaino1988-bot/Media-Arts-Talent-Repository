@@ -2,7 +2,6 @@ import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db, mediaTable } from "@workspace/db";
 import { UploadMediaBody, GetUserMediaParams, DeleteMediaParams } from "@workspace/api-zod";
-import { canAccessUser, requireAuthenticatedUser } from "../lib/auth";
 
 const router = Router();
 
@@ -14,19 +13,9 @@ function formatMedia(m: typeof mediaTable.$inferSelect) {
 }
 
 router.post("/media", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const parsed = UploadMediaBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  if (!canAccessUser(actor, parsed.data.userId)) {
-    res.status(403).json({ error: "You can only add media to your own profile" });
     return;
   }
 
@@ -35,19 +24,9 @@ router.post("/media", async (req, res): Promise<void> => {
 });
 
 router.get("/media/:userId", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = GetUserMediaParams.safeParse({ userId: Number(req.params.userId) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  if (!canAccessUser(actor, params.data.userId)) {
-    res.status(403).json({ error: "You can only access your own media" });
     return;
   }
 
@@ -61,25 +40,9 @@ router.get("/media/:userId", async (req, res): Promise<void> => {
 });
 
 router.delete("/media/:id/delete", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = DeleteMediaParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [existingMedia] = await db.select().from(mediaTable).where(eq(mediaTable.id, params.data.id));
-  if (!existingMedia) {
-    res.status(404).json({ error: "Media not found" });
-    return;
-  }
-
-  if (actor.role !== "admin" && actor.id !== existingMedia.userId) {
-    res.status(403).json({ error: "You can only delete your own media" });
     return;
   }
 

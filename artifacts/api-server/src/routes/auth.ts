@@ -2,7 +2,6 @@ import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { createHash } from "crypto";
 import { db, usersTable } from "@workspace/db";
-import { createAccessToken, requireAuthenticatedUser } from "../lib/auth";
 import { recordAdminActivity } from "../lib/activity-log";
 
 const router = Router();
@@ -43,19 +42,8 @@ router.post("/auth/sign-in", async (req, res): Promise<void> => {
       summary: "Admin signed in",
     });
   }
-  res.json({
-    token: createAccessToken(user),
-    user: safeUser,
-  });
-});
 
-router.get("/auth/me", async (req, res): Promise<void> => {
-  const user = await requireAuthenticatedUser(req, res);
-  if (!user) {
-    return;
-  }
-
-  res.json(user);
+  res.json(safeUser);
 });
 
 export default router;

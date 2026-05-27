@@ -1,5 +1,3 @@
-import type { AuthenticatedUser } from "./auth";
-
 export type AdminActivityEntry = {
   id: string;
   actorId: number;
@@ -16,7 +14,7 @@ const MAX_ENTRIES = 250;
 const entries: AdminActivityEntry[] = [];
 
 export function recordAdminActivity(input: {
-  actor: AuthenticatedUser;
+  actor: { id: number; firstName: string; lastName: string };
   action: string;
   targetType: AdminActivityEntry["targetType"];
   targetId: number | null;

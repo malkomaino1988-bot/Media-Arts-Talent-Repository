@@ -8,8 +8,6 @@ import {
   UpdateAdParams,
   DeleteAdParams,
 } from "@workspace/api-zod";
-import { getOptionalAuthenticatedUser, requireAuthenticatedUser } from "../lib/auth";
-import { recordAdminActivity } from "../lib/activity-log";
 
 const router = Router();
 
@@ -35,18 +33,11 @@ router.get("/ads", async (req, res): Promise<void> => {
     return;
   }
 
-  const actor = await getOptionalAuthenticatedUser(req);
   const { placement, active } = query.data;
   const conditions: ReturnType<typeof eq>[] = [];
 
   if (placement) conditions.push(eq(adsTable.placement, placement));
-  if (actor?.role !== "admin") {
-    if (!actor) {
-      conditions.push(eq(adsTable.status, "active"));
-    } else {
-      conditions.push(eq(adsTable.userId, actor.id));
-    }
-  } else if (active !== undefined) {
+  if (active !== undefined) {
     conditions.push(eq(adsTable.status, active ? "active" : "inactive"));
   }
 
@@ -57,19 +48,9 @@ router.get("/ads", async (req, res): Promise<void> => {
 });
 
 router.post("/ads", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const parsed = CreateAdBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  if (actor.role !== "admin" && actor.id !== parsed.data.userId) {
-    res.status(403).json({ error: "You can only create ads for your own account" });
     return;
   }
 
@@ -94,25 +75,9 @@ router.post("/ads", async (req, res): Promise<void> => {
 });
 
 router.patch("/ads/:id", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = UpdateAdParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [existingAd] = await db.select().from(adsTable).where(eq(adsTable.id, params.data.id));
-  if (!existingAd) {
-    res.status(404).json({ error: "Ad not found" });
-    return;
-  }
-
-  if (actor.role !== "admin" && actor.id !== existingAd.userId) {
-    res.status(403).json({ error: "You can only update your own ads" });
     return;
   }
 
@@ -133,42 +98,13 @@ router.patch("/ads/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  if (actor.role === "admin") {
-    recordAdminActivity({
-      actor,
-      action: "ad.updated",
-      targetType: "ad",
-      targetId: ad.id,
-      summary: `Updated ${ad.placement} ad`,
-      details: {
-        status: ad.status,
-      },
-    });
-  }
-
   res.json(formatAd(ad));
 });
 
 router.delete("/ads/:id", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = DeleteAdParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [existingAd] = await db.select().from(adsTable).where(eq(adsTable.id, params.data.id));
-  if (!existingAd) {
-    res.status(404).json({ error: "Ad not found" });
-    return;
-  }
-
-  if (actor.role !== "admin" && actor.id !== existingAd.userId) {
-    res.status(403).json({ error: "You can only delete your own ads" });
     return;
   }
 
@@ -176,16 +112,6 @@ router.delete("/ads/:id", async (req, res): Promise<void> => {
   if (!ad) {
     res.status(404).json({ error: "Ad not found" });
     return;
-  }
-
-  if (actor.role === "admin") {
-    recordAdminActivity({
-      actor,
-      action: "ad.deleted",
-      targetType: "ad",
-      targetId: ad.id,
-      summary: `Deleted ${ad.placement} ad`,
-    });
   }
 
   res.sendStatus(204);

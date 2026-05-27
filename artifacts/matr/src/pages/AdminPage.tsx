@@ -87,10 +87,7 @@ export default function AdminPage() {
       if (jobsParams.city) query.set("city", jobsParams.city);
       if (jobsParams.status !== "all") query.set("status", jobsParams.status);
 
-      const token = window.localStorage.getItem("matr.auth.token");
-      const response = await fetch(`/api/jobs?${query.toString()}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      });
+      const response = await fetch(`/api/jobs?${query.toString()}`);
       if (!response.ok) {
         throw new Error("Failed to load admin jobs");
       }
@@ -101,10 +98,7 @@ export default function AdminPage() {
   const { data: activityData, isLoading: loadingActivity } = useQuery<AdminActivityEntry[]>({
     queryKey: ["admin-activity"],
     queryFn: async () => {
-      const token = window.localStorage.getItem("matr.auth.token");
-      const response = await fetch("/api/admin/activity", {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      });
+      const response = await fetch("/api/admin/activity");
       if (!response.ok) {
         throw new Error("Failed to load admin activity");
       }

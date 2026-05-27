@@ -40,7 +40,7 @@ const PLAN_LIMITS: Record<string, { bio: number | null; talents: number | null; 
 export default function SignUpPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { signIn } = useAuth();
+  const { setUser } = useAuth();
   const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
 
   const [step, setStep] = useState(1);
@@ -104,7 +104,7 @@ export default function SignUpPage() {
 
   const handlePayPalSuccess = async () => {
     try {
-      await createUser.mutateAsync({
+      const user = await createUser.mutateAsync({
         data: {
           email: form.email,
           password: form.password,
@@ -128,7 +128,7 @@ export default function SignUpPage() {
           paypalOrderId: `DEMO-${Date.now()}`,
         },
       });
-      await signIn(form.email, form.password);
+      setUser(user);
       toast({ title: "Welcome to MATR!", description: "Your profile has been created." });
       setLocation("/dashboard");
     } catch {

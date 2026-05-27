@@ -10,8 +10,6 @@ import {
   DeleteUserParams,
 } from "@workspace/api-zod";
 import { createHash } from "crypto";
-import { canAccessUser, requireAdminUser, requireAuthenticatedUser } from "../lib/auth";
-import { recordAdminActivity } from "../lib/activity-log";
 
 const router = Router();
 
@@ -20,10 +18,6 @@ function hashPassword(password: string): string {
 }
 
 router.get("/users", async (req, res): Promise<void> => {
-  if (!(await requireAdminUser(req, res))) {
-    return;
-  }
-
   const query = ListUsersQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -76,9 +70,8 @@ router.post("/users", async (req, res): Promise<void> => {
   }
 
   const { password, email, ...rest } = parsed.data;
-  const normalizedEmail = email.trim().toLowerCase();
 
-  const existing = await db.select().from(usersTable).where(eq(usersTable.email, normalizedEmail));
+  const existing = await db.select().from(usersTable).where(eq(usersTable.email, email));
   if (existing.length > 0) {
     res.status(400).json({ error: "Email already registered" });
     return;
@@ -88,7 +81,7 @@ router.post("/users", async (req, res): Promise<void> => {
     .insert(usersTable)
     .values({
       ...rest,
-      email: normalizedEmail,
+      email,
       passwordHash: hashPassword(password),
     })
     .returning();
@@ -98,19 +91,9 @@ router.post("/users", async (req, res): Promise<void> => {
 });
 
 router.get("/users/:id", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = GetUserParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  if (!canAccessUser(actor, params.data.id)) {
-    res.status(403).json({ error: "You can only access your own profile" });
     return;
   }
 
@@ -125,30 +108,15 @@ router.get("/users/:id", async (req, res): Promise<void> => {
 });
 
 router.patch("/users/:id", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = UpdateUserParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
 
-  if (!canAccessUser(actor, params.data.id)) {
-    res.status(403).json({ error: "You can only update your own profile" });
-    return;
-  }
-
   const parsed = UpdateUserBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  if (actor.role !== "admin" && "isActive" in parsed.data) {
-    res.status(403).json({ error: "Only admins can change account status" });
     return;
   }
 
@@ -163,36 +131,11 @@ router.patch("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  if (actor.role === "admin" && actor.id !== user.id) {
-    if (typeof parsed.data.isActive === "boolean") {
-      recordAdminActivity({
-        actor,
-        action: parsed.data.isActive ? "user.reactivated" : "user.deactivated",
-        targetType: "user",
-        targetId: user.id,
-        summary: `${parsed.data.isActive ? "Reactivated" : "Deactivated"} ${user.firstName} ${user.lastName}`,
-      });
-    } else {
-      recordAdminActivity({
-        actor,
-        action: "user.updated",
-        targetType: "user",
-        targetId: user.id,
-        summary: `Updated ${user.firstName} ${user.lastName}`,
-      });
-    }
-  }
-
   const { passwordHash: _ph, ...safeUser } = user;
   res.json(safeUser);
 });
 
 router.delete("/users/:id", async (req, res): Promise<void> => {
-  const actor = await requireAdminUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = DeleteUserParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -204,14 +147,6 @@ router.delete("/users/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "User not found" });
     return;
   }
-
-  recordAdminActivity({
-    actor,
-    action: "user.deleted",
-    targetType: "user",
-    targetId: user.id,
-    summary: `Deleted ${user.firstName} ${user.lastName}`,
-  });
 
   res.sendStatus(204);
 });

@@ -9,8 +9,6 @@ import {
   UpdateJobParams,
   DeleteJobParams,
 } from "@workspace/api-zod";
-import { getOptionalAuthenticatedUser, requireAuthenticatedUser } from "../lib/auth";
-import { recordAdminActivity } from "../lib/activity-log";
 
 const router = Router();
 
@@ -34,9 +32,8 @@ router.get("/jobs", async (req, res): Promise<void> => {
 
   const { page, limit, search, city, category } = query.data;
   const offset = ((page ?? 1) - 1) * (limit ?? 10);
-  const actor = await getOptionalAuthenticatedUser(req);
   const statusFilter = typeof req.query.status === "string" ? req.query.status : undefined;
-  const includeAll = req.query.scope === "all" && actor?.role === "admin";
+  const includeAll = req.query.scope === "all";
   const conditions: ReturnType<typeof eq>[] = [];
 
   if (!includeAll) {
@@ -77,19 +74,9 @@ router.get("/jobs", async (req, res): Promise<void> => {
 });
 
 router.post("/jobs", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const parsed = CreateJobBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  if (actor.role !== "admin" && actor.id !== parsed.data.userId) {
-    res.status(403).json({ error: "You can only create jobs for your own account" });
     return;
   }
 
@@ -121,41 +108,13 @@ router.get("/jobs/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  if (job.status !== "active") {
-    const actor = await requireAuthenticatedUser(req, res);
-    if (!actor) {
-      return;
-    }
-
-    if (actor.role !== "admin" && actor.id !== job.userId) {
-      res.status(403).json({ error: "You do not have access to this job" });
-      return;
-    }
-  }
-
   res.json(formatJob(job));
 });
 
 router.patch("/jobs/:id", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = UpdateJobParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [existingJob] = await db.select().from(jobsTable).where(eq(jobsTable.id, params.data.id));
-  if (!existingJob) {
-    res.status(404).json({ error: "Job not found" });
-    return;
-  }
-
-  if (actor.role !== "admin" && actor.id !== existingJob.userId) {
-    res.status(403).json({ error: "You can only update your own jobs" });
     return;
   }
 
@@ -176,42 +135,13 @@ router.patch("/jobs/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  if (actor.role === "admin") {
-    recordAdminActivity({
-      actor,
-      action: "job.updated",
-      targetType: "job",
-      targetId: job.id,
-      summary: `Updated ${job.title}`,
-      details: {
-        status: job.status,
-      },
-    });
-  }
-
   res.json(formatJob(job));
 });
 
 router.delete("/jobs/:id", async (req, res): Promise<void> => {
-  const actor = await requireAuthenticatedUser(req, res);
-  if (!actor) {
-    return;
-  }
-
   const params = DeleteJobParams.safeParse({ id: Number(req.params.id) });
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [existingJob] = await db.select().from(jobsTable).where(eq(jobsTable.id, params.data.id));
-  if (!existingJob) {
-    res.status(404).json({ error: "Job not found" });
-    return;
-  }
-
-  if (actor.role !== "admin" && actor.id !== existingJob.userId) {
-    res.status(403).json({ error: "You can only delete your own jobs" });
     return;
   }
 
@@ -219,16 +149,6 @@ router.delete("/jobs/:id", async (req, res): Promise<void> => {
   if (!job) {
     res.status(404).json({ error: "Job not found" });
     return;
-  }
-
-  if (actor.role === "admin") {
-    recordAdminActivity({
-      actor,
-      action: "job.deleted",
-      targetType: "job",
-      targetId: job.id,
-      summary: `Deleted ${job.title}`,
-    });
   }
 
   res.sendStatus(204);
