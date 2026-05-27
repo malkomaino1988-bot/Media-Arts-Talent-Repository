@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { MapPin, Star } from "lucide-react";
+import { ArrowUpRight, MapPin, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface TalentCardProps {
@@ -49,7 +49,7 @@ export default function TalentCard({
       whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(0,0,0,0.12)" }}
     >
       <Link href={`/talent/${id}`} data-testid={`card-talent-${id}`}>
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer transition-all duration-300 hover:border-gray-200 h-full">
+        <div className="bg-white rounded-[1.4rem] border border-gray-100 p-5 cursor-pointer transition-all duration-300 hover:border-gray-200 h-full">
           <div className="flex items-start gap-4 mb-4">
             <div className="relative flex-shrink-0">
               {profilePhotoUrl ? (
@@ -86,6 +86,7 @@ export default function TalentCard({
                 </span>
               </div>
             </div>
+            <ArrowUpRight size={15} className="text-gray-300 flex-shrink-0" />
           </div>
 
           {planName && (
@@ -99,7 +100,7 @@ export default function TalentCard({
             </div>
           )}
 
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 min-h-11">
             {talentTags.slice(0, 3).map((tag) => (
               <Badge
                 key={tag}
@@ -117,9 +118,14 @@ export default function TalentCard({
           </div>
 
           {yearsExperience !== null && yearsExperience !== undefined && (
-            <p className="text-gray-400 text-xs mt-3">
-              {yearsExperience} yr{yearsExperience !== 1 ? "s" : ""} experience
-            </p>
+            <div className="mt-4 border-t border-gray-100 pt-3 flex items-center justify-between">
+              <p className="text-gray-400 text-xs">
+                {yearsExperience} yr{yearsExperience !== 1 ? "s" : ""} experience
+              </p>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-300">
+                View
+              </span>
+            </div>
           )}
         </div>
       </Link>

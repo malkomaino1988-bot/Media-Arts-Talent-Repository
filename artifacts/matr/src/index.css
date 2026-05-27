@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -110,8 +110,8 @@
   --chart-4: 0 0% 70%;
   --chart-5: 0 0% 85%;
 
-  --app-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --app-font-serif: Georgia, serif;
+  --app-font-sans: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --app-font-serif: 'Sora', 'Instrument Sans', system-ui, sans-serif;
   --app-font-mono: Menlo, monospace;
   --radius: 0.75rem;
   --shadow-2xs: 0px 1px 2px 0px rgba(0,0,0,0.04);
@@ -202,13 +202,33 @@
   }
   h1 {
     @apply font-bold tracking-tight;
+    font-family: var(--app-font-serif);
   }
   h2 {
     @apply font-bold tracking-tight;
+    font-family: var(--app-font-serif);
   }
 }
 
 @layer utilities {
+  .matr-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 38px 38px;
+  }
+  .matr-grid-light {
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .matr-panel {
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  }
+  .matr-ring {
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset;
+  }
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
   }

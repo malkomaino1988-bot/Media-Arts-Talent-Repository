@@ -1,28 +1,47 @@
 import { Link } from "wouter";
+import { ArrowUpRight, Briefcase, Megaphone, Users } from "lucide-react";
 
 export default function Footer() {
   return (
     <footer className="bg-black text-white pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 mb-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div>
+        <div className="matr-grid matr-ring relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 md:p-8 mb-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="absolute inset-y-0 right-0 hidden w-80 bg-[radial-gradient(circle_at_center,rgba(229,9,20,0.2),transparent_70%)] lg:block" />
+          <div className="relative">
             <p className="text-xs uppercase tracking-[0.28em] text-white/40 mb-2">Creative Network</p>
             <h3 className="text-2xl md:text-3xl font-black text-white mb-2">
-              Keep every path in the directory working.
+              Make every next step obvious.
             </h3>
             <p className="text-sm text-gray-400 max-w-2xl">
-              Discover talent, post a role, promote your brand, or manage your membership without hunting for the next step.
+              Explore talent, post a role, promote a project, or upgrade a membership without hitting a dead end.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="relative grid gap-3 sm:grid-cols-3">
             <Link href="/explore">
-              <span className="inline-flex h-11 items-center rounded-xl bg-[#E50914] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#b40710] cursor-pointer">
-                Browse Talent
+              <span className="inline-flex h-14 min-w-[170px] items-center justify-between rounded-2xl bg-[#E50914] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#b40710] cursor-pointer">
+                <span className="flex items-center gap-2">
+                  <Users size={16} />
+                  Browse Talent
+                </span>
+                <ArrowUpRight size={14} />
               </span>
             </Link>
             <Link href="/jobs">
-              <span className="inline-flex h-11 items-center rounded-xl border border-white/15 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5 cursor-pointer">
-                Browse Jobs
+              <span className="inline-flex h-14 min-w-[170px] items-center justify-between rounded-2xl border border-white/15 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5 cursor-pointer">
+                <span className="flex items-center gap-2">
+                  <Briefcase size={16} />
+                  Browse Jobs
+                </span>
+                <ArrowUpRight size={14} />
+              </span>
+            </Link>
+            <Link href="/advertise">
+              <span className="inline-flex h-14 min-w-[170px] items-center justify-between rounded-2xl border border-white/15 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5 cursor-pointer">
+                <span className="flex items-center gap-2">
+                  <Megaphone size={16} />
+                  Advertise
+                </span>
+                <ArrowUpRight size={14} />
               </span>
             </Link>
           </div>

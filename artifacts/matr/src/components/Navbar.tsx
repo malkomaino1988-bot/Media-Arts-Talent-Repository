@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -26,17 +26,32 @@ export default function Navbar() {
     : [];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/92 backdrop-blur-xl">
+      <div className="border-b border-black/5 bg-black text-white">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 py-2 text-xs sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2 text-white/70">
+            <Sparkles size={12} className="text-[#E50914]" />
+            <span>Creative directory, jobs, ads, and member profiles in one place.</span>
+          </div>
+          <div className="hidden md:flex items-center gap-5 text-white/55">
+            <span>Windsor-Essex creative network</span>
+            <span>Built for talent, crews, and brands</span>
+          </div>
+        </div>
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" data-testid="link-logo">
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <div className="w-8 h-8 bg-[#E50914] rounded-sm flex items-center justify-center">
+            <div className="flex items-center gap-3 cursor-pointer group">
+              <div className="w-9 h-9 bg-[#E50914] rounded-xl flex items-center justify-center shadow-[0_12px_24px_rgba(229,9,20,0.28)]">
                 <span className="text-white font-black text-sm">M</span>
               </div>
-              <span className="font-black text-black text-lg tracking-tight hidden sm:block">
-                MATR
-              </span>
+              <div className="hidden sm:block">
+                <span className="block font-black text-black text-lg tracking-tight leading-none">MATR</span>
+                <span className="block text-[10px] uppercase tracking-[0.24em] text-gray-400 mt-1">
+                  Media Arts Talent Repository
+                </span>
+              </div>
             </div>
           </Link>
 
@@ -75,24 +90,30 @@ export default function Navbar() {
                 <span className="text-sm text-gray-500 hidden xl:block">
                   {user?.firstName} {user?.lastName}
                 </span>
-                <Button variant="ghost" size="sm" onClick={signOut} data-testid="button-sign-out">
+                <Button variant="ghost" size="sm" onClick={signOut} className="rounded-xl" data-testid="button-sign-out">
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
                 <Link href="/sign-in">
-                  <Button variant="ghost" size="sm" data-testid="button-sign-in">
+                  <Button variant="ghost" size="sm" className="rounded-xl" data-testid="button-sign-in">
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/sign-up">
                   <Button
                     size="sm"
-                    className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold"
+                    className="rounded-xl bg-[#E50914] text-white font-semibold shadow-[0_14px_24px_rgba(229,9,20,0.24)] hover:bg-[#b40710]"
                     data-testid="button-sign-up"
                   >
                     Join the Directory
+                  </Button>
+                </Link>
+                <Link href="/jobs">
+                  <Button variant="outline" size="sm" className="rounded-xl border-gray-200 gap-2">
+                    Browse Jobs
+                    <ArrowUpRight size={14} />
                   </Button>
                 </Link>
               </>
