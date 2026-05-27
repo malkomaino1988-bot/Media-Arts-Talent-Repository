@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Monitor, BarChart2, Eye, CheckCircle2, Megaphone } from "lucide-react";
+import { Monitor, BarChart2, Eye, CheckCircle2, Megaphone, MousePointerClick, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -107,6 +107,19 @@ export default function AdvertisePage() {
           <p className="text-white/50 text-lg max-w-2xl">
             Promote your brand, project, or service to the MATR audience, then manage the placement from your dashboard.
           </p>
+          <div className="grid gap-3 sm:grid-cols-3 mt-8">
+            {[
+              { icon: Eye, value: "Visible", label: "Across core pages" },
+              { icon: Users, value: "Creative", label: "Audience fit" },
+              { icon: MousePointerClick, value: "Simple", label: "Dashboard management" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border border-white/10 bg-white/6 p-4">
+                <item.icon size={16} className="text-[#E50914] mb-3" />
+                <p className="text-2xl font-black text-white">{item.value}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-white/35 mt-1">{item.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

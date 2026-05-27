@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Search, Briefcase, MapPin, ArrowRight } from "lucide-react";
+import { ArrowRight, Briefcase, CheckCircle2, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -80,67 +80,85 @@ export default function JobsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <Input
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                placeholder="Search jobs..."
-                className="pl-10 h-11 rounded-xl border-gray-200"
-                data-testid="input-job-search"
-              />
+        <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr] mb-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <Input
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  placeholder="Search jobs..."
+                  className="pl-10 h-11 rounded-xl border-gray-200"
+                  data-testid="input-job-search"
+                />
+              </div>
+              <Select value={category} onValueChange={(value) => { setCategory(value === "all" ? "" : value); setPage(1); }}>
+                <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-category">
+                  <SelectValue placeholder="Talent Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any Talent Type</SelectItem>
+                  {CATEGORIES.map((item) => (
+                    <SelectItem key={item} value={item}>{item}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={city} onValueChange={(value) => { setCity(value === "all" ? "" : value); setPage(1); }}>
+                <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-city">
+                  <SelectValue placeholder="City" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any City</SelectItem>
+                  {CITIES.map((item) => (
+                    <SelectItem key={item} value={item}>{item}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-sort">
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="talent-asc">Talent A-Z</SelectItem>
+                  <SelectItem value="talent-desc">Talent Z-A</SelectItem>
+                  <SelectItem value="city-asc">City A-Z</SelectItem>
+                  <SelectItem value="city-desc">City Z-A</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={category} onValueChange={(value) => { setCategory(value === "all" ? "" : value); setPage(1); }}>
-              <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-category">
-                <SelectValue placeholder="Talent Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any Talent Type</SelectItem>
-                {CATEGORIES.map((item) => (
-                  <SelectItem key={item} value={item}>{item}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={city} onValueChange={(value) => { setCity(value === "all" ? "" : value); setPage(1); }}>
-              <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-city">
-                <SelectValue placeholder="City" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any City</SelectItem>
-                {CITIES.map((item) => (
-                  <SelectItem key={item} value={item}>{item}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="h-11 rounded-xl border-gray-200" data-testid="select-job-sort">
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Most Recent</SelectItem>
-                <SelectItem value="talent-asc">Talent A-Z</SelectItem>
-                <SelectItem value="talent-desc">Talent Z-A</SelectItem>
-                <SelectItem value="city-asc">City A-Z</SelectItem>
-                <SelectItem value="city-desc">City Z-A</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-100">
+              <p className="text-sm text-gray-500">
+                Sort by talent or city, then contact listings directly from the board.
+              </p>
+              {hasFilters && (
+                <Button
+                  variant="outline"
+                  className="rounded-xl"
+                  onClick={clearFilters}
+                  data-testid="button-clear-job-filters"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-100">
-            <p className="text-sm text-gray-500">
-              Sort by talent or city, then contact listings directly from the board.
-            </p>
-            {hasFilters && (
-              <Button
-                variant="outline"
-                className="rounded-xl"
-                onClick={clearFilters}
-                data-testid="button-clear-job-filters"
-              >
-                Clear Filters
-              </Button>
-            )}
+
+          <div className="bg-black rounded-[1.8rem] p-6 text-white">
+            <p className="text-xs uppercase tracking-[0.22em] text-white/45 mb-4">How To Use The Board</p>
+            <div className="space-y-3 text-sm text-white/70">
+              {[
+                "Browse active roles first so you can compare category, city, and compensation.",
+                "Use the filters to tighten the list instead of scanning every listing manually.",
+                "When you are ready to hire, post a role and return to the dashboard to track it.",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-2">
+                  <CheckCircle2 size={16} className="text-[#E50914] mt-0.5" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -152,9 +170,16 @@ export default function JobsPage() {
           </div>
         ) : sortedJobs.length > 0 ? (
           <>
-            <p className="text-gray-500 text-sm mb-4" data-testid="text-jobs-count">
-              {data?.total} job{data?.total !== 1 ? "s" : ""} available
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4 rounded-2xl border border-gray-200 bg-white p-4">
+              <p className="text-gray-500 text-sm" data-testid="text-jobs-count">
+                {data?.total} job{data?.total !== 1 ? "s" : ""} available
+              </p>
+              <div className="flex flex-wrap gap-2 text-xs text-gray-400">
+                <span className="rounded-full bg-[#F5F5F5] px-3 py-1">Direct contact</span>
+                <span className="rounded-full bg-[#F5F5F5] px-3 py-1">City sorting</span>
+                <span className="rounded-full bg-[#F5F5F5] px-3 py-1">Talent sorting</span>
+              </div>
+            </div>
             <div className="space-y-4">
               {sortedJobs.map((job, i) => (
                 <motion.div
@@ -162,14 +187,14 @@ export default function JobsPage() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-gray-300 hover:shadow-md transition-all"
+                  className="bg-white rounded-[1.6rem] border border-gray-200 p-6 hover:border-gray-300 hover:shadow-md transition-all"
                   data-testid={`card-job-${job.id}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start gap-3 mb-2">
-                        <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Briefcase size={16} className="text-white" />
+                        <div className="w-11 h-11 bg-black rounded-2xl flex items-center justify-center flex-shrink-0">
+                          <Briefcase size={17} className="text-white" />
                         </div>
                         <div>
                           <h3 className="font-bold text-black text-lg" data-testid={`text-job-title-${job.id}`}>

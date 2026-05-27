@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Users, Briefcase, Monitor, BarChart2, TrendingUp, ShieldCheck, Search, Eye } from "lucide-react";
+import { Users, Briefcase, Monitor, BarChart2, TrendingUp, ShieldCheck, Search, Eye, Sparkles, Activity } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -133,6 +133,7 @@ export default function AdminPage() {
   const activeMemberships = membershipDist?.reduce((sum, item) => sum + item.count, 0) ?? 0;
   const pendingAds = filteredAds.filter((ad) => ad.status === "pending").length;
   const inactiveUsers = usersData?.users.filter((entry) => !entry.isActive).length ?? 0;
+  const draftJobs = jobsData?.jobs.filter((job) => job.status === "draft").length ?? 0;
 
   const invalidateAdminData = async () => {
     await Promise.all([
@@ -251,6 +252,11 @@ export default function AdminPage() {
     { icon: Monitor, label: "Pending Ads", value: pendingAds, sub: `${stats?.activeAds ?? 0} active ads` },
     { icon: TrendingUp, label: "Revenue", value: stats ? `$${stats.totalRevenue.toLocaleString()}` : "-", sub: `${activeMemberships} active memberships` },
   ];
+  const priorityQueue = [
+    { label: "Pending ads to review", value: pendingAds, urgent: pendingAds > 0 },
+    { label: "Inactive users needing attention", value: inactiveUsers, urgent: inactiveUsers > 0 },
+    { label: "Draft jobs not yet live", value: draftJobs, urgent: draftJobs > 0 },
+  ];
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
@@ -282,6 +288,37 @@ export default function AdminPage() {
               <p className="text-xs text-gray-400 mt-1">{card.sub}</p>
             </motion.div>
           ))}
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_.9fr] gap-6 mb-8">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles size={18} className="text-[#E50914]" />
+              <h2 className="font-bold text-black">Admin Priorities</h2>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {priorityQueue.map((item) => (
+                <div key={item.label} className="rounded-xl border border-gray-100 bg-[#F5F5F5] p-4">
+                  <p className={`text-2xl font-black ${item.urgent ? "text-[#E50914]" : "text-black"}`}>{item.value}</p>
+                  <p className="text-sm text-gray-600 mt-1">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-black rounded-2xl p-6 text-white">
+            <div className="flex items-center gap-2 mb-4">
+              <Activity size={18} className="text-[#E50914]" />
+              <p className="text-xs uppercase tracking-[0.22em] text-white/45">Operations</p>
+            </div>
+            <h2 className="text-2xl font-black mb-3">Use this view as the platform control room.</h2>
+            <p className="text-sm text-white/65 mb-5">
+              Moderate users, clean up postings, approve ad placements, and keep an eye on activity without jumping between pages.
+            </p>
+            <p className="text-xs text-white/45">
+              Recent admin activity: {activityData?.length ?? 0} event{(activityData?.length ?? 0) !== 1 ? "s" : ""} logged
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_.8fr] gap-6 mb-8">
@@ -581,7 +618,7 @@ export default function AdminPage() {
                         <Badge variant="secondary" className="text-xs uppercase">{entry.targetType}</Badge>
                       </div>
                       <p className="text-xs text-gray-500">
-                        {entry.actorName} • {new Date(entry.createdAt).toLocaleString()}
+                        {entry.actorName} | {new Date(entry.createdAt).toLocaleString()}
                       </p>
                       {entry.details && Object.keys(entry.details).length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">

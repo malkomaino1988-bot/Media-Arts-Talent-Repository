@@ -540,7 +540,7 @@ export default function SignUpPage() {
                     {createUser.isPending ? "Creating account..." : `Pay $${selectedPlanData?.priceYearly} with PayPal`}
                   </Button>
                   <p className="text-xs text-gray-400 text-center mt-3">
-                    Sandbox mode — no real payment processed
+                    Sandbox mode - no real payment processed
                   </p>
                 </div>
               </div>

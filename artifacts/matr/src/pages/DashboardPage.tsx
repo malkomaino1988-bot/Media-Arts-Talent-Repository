@@ -4,8 +4,10 @@ import {
   User,
   Image,
   BarChart2,
+  CheckCircle2,
   Edit2,
   Plus,
+  Sparkles,
   Trash2,
   Briefcase,
   Monitor,
@@ -116,6 +118,13 @@ export default function DashboardPage() {
       ].filter(Boolean).length
     : 0;
   const profileCompleteness = Math.min(100, completionParts * 14);
+  const profileChecklist = [
+    { label: "Add a clear bio", done: Boolean(user?.bio) },
+    { label: "Set your public role", done: Boolean(user?.jobTitle) },
+    { label: "Add profile or banner imagery", done: Boolean(user?.profilePhotoUrl || user?.bannerUrl) },
+    { label: "Add your contact links", done: Boolean(user?.website || user?.instagram || user?.linkedin || user?.twitter) },
+    { label: "Choose talent tags", done: Boolean(user?.talentTags.length) },
+  ];
 
   const startEdit = () => {
     if (user) {
@@ -316,6 +325,42 @@ export default function DashboardPage() {
                     View Plans
                   </Button>
                 </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_.9fr] gap-6 mb-6">
+              <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles size={18} className="text-[#E50914]" />
+                  <h2 className="text-xl font-black text-black">Current Focus</h2>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {profileChecklist.map((item) => (
+                    <div key={item.label} className="flex items-start gap-3 rounded-xl border border-gray-100 bg-[#F5F5F5] px-4 py-3">
+                      <CheckCircle2 size={18} className={item.done ? "text-[#E50914] mt-0.5" : "text-gray-300 mt-0.5"} />
+                      <div>
+                        <p className="text-sm font-semibold text-black">{item.label}</p>
+                        <p className="text-xs text-gray-500">{item.done ? "Completed" : "Recommended next step"}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-black rounded-2xl p-6 text-white">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/45 mb-2">Member Control Center</p>
+                <h2 className="text-2xl font-black mb-3">Keep your public profile, media, jobs, and ads aligned.</h2>
+                <p className="text-sm text-white/65 mb-5">
+                  The stronger your profile looks here, the easier it is for people to trust what they see when they open the public directory listing.
+                </p>
+                <div className="space-y-2">
+                  <Link href="/post-job">
+                    <Button className="w-full rounded-xl bg-[#E50914] hover:bg-[#b40710] text-white">Post a Job</Button>
+                  </Link>
+                  <Link href="/advertise">
+                    <Button variant="outline" className="w-full rounded-xl border-white/15 bg-transparent text-white hover:bg-white/10">Create an Ad</Button>
+                  </Link>
+                </div>
               </div>
             </div>
 

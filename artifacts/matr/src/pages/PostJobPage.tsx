@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Briefcase, CheckCircle2, ClipboardList } from "lucide-react";
+import { Briefcase, CheckCircle2, ClipboardList, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,6 +85,19 @@ export default function PostJobPage() {
           <p className="text-white/50 text-lg max-w-2xl">
             Reach the MATR talent community with a role that is structured clearly and ready for applicants to act on.
           </p>
+          <div className="grid gap-3 sm:grid-cols-3 mt-8">
+            {[
+              { icon: Users, value: "Targeted", label: "Creative audience" },
+              { icon: MapPin, value: "Local", label: "City-based discovery" },
+              { icon: ClipboardList, value: "$100", label: "2 months live" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border border-white/10 bg-white/6 p-4">
+                <item.icon size={16} className="text-[#E50914] mb-3" />
+                <p className="text-2xl font-black text-white">{item.value}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-white/35 mt-1">{item.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -240,6 +253,22 @@ export default function PostJobPage() {
                       <p className="text-xs text-white/45">
                         You will return to your dashboard after submission so the posting is easy to track.
                       </p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                      <h3 className="font-bold text-black mb-4">What a strong listing includes</h3>
+                      <div className="space-y-3 text-sm text-gray-600">
+                        {[
+                          "A specific title creators immediately recognize.",
+                          "Enough detail to understand schedule, expectations, and compensation.",
+                          "A contact email that is monitored and ready for replies.",
+                        ].map((item) => (
+                          <div key={item} className="flex items-start gap-2">
+                            <CheckCircle2 size={16} className="text-[#E50914] mt-0.5" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
