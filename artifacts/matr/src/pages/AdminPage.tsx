@@ -28,6 +28,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const planFilterOptions = ["All Plans", "Friend", "Bronze", "Silver", "Gold", "Gold Business", "Platinum Business"];
 const jobStatusOptions = ["active", "draft", "expired"];
@@ -224,7 +225,7 @@ export default function AdminPage() {
         <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center max-w-xl">
           <h1 className="text-3xl font-black text-black mb-3">Admin Access</h1>
           <p className="text-gray-500 mb-6">Sign in with an admin account to manage users, jobs, ads, and platform reporting.</p>
-          <Link href="/sign-in">
+          <Link href={buildAuthHref("/sign-in", { redirectTo: "/admin" })}>
             <Button className="bg-[#E50914] hover:bg-[#b40710] text-white">Sign In</Button>
           </Link>
         </div>

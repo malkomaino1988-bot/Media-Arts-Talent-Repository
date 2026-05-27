@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 interface PlanCardProps {
   name: string;
@@ -14,6 +15,7 @@ interface PlanCardProps {
   jobCredits: number;
   index?: number;
   onSelect?: (slug: string) => void;
+  buttonLabel?: string;
 }
 
 export default function PlanCard({
@@ -27,6 +29,7 @@ export default function PlanCard({
   jobCredits,
   index = 0,
   onSelect,
+  buttonLabel,
 }: PlanCardProps) {
   return (
     <motion.div
@@ -106,10 +109,10 @@ export default function PlanCard({
             }`}
             data-testid={`button-select-plan-${slug}`}
           >
-            Choose {name}
+            {buttonLabel ?? `Choose ${name}`}
           </Button>
         ) : (
-          <Link href={`/sign-up?plan=${slug}`}>
+          <Link href={buildAuthHref("/sign-up", { plan: slug, redirectTo: `/membership?plan=${encodeURIComponent(slug)}` })}>
             <Button
               className={`relative z-10 w-full rounded-xl font-semibold ${
                 isMostPopular

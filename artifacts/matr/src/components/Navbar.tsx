@@ -4,6 +4,7 @@ import { ArrowUpRight, Menu, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -96,12 +97,12 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link href="/sign-in">
+                <Link href={buildAuthHref("/sign-in", { redirectTo: location })}>
                   <Button variant="ghost" size="sm" className="rounded-xl" data-testid="button-sign-in">
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/sign-up">
+                <Link href={buildAuthHref("/sign-up", { redirectTo: location })}>
                   <Button
                     size="sm"
                     className="rounded-xl bg-[#E50914] text-white font-semibold shadow-[0_14px_24px_rgba(229,9,20,0.24)] hover:bg-[#b40710]"
@@ -192,12 +193,12 @@ export default function Navbar() {
                   </Button>
                 ) : (
                   <>
-                    <Link href="/sign-in" onClick={() => setOpen(false)}>
+                    <Link href={buildAuthHref("/sign-in", { redirectTo: location })} onClick={() => setOpen(false)}>
                       <Button variant="outline" className="w-full" size="sm" data-testid="button-mobile-sign-in">
                         Sign In
                       </Button>
                     </Link>
-                    <Link href="/sign-up" onClick={() => setOpen(false)}>
+                    <Link href={buildAuthHref("/sign-up", { redirectTo: location })} onClick={() => setOpen(false)}>
                       <Button
                         className="w-full bg-[#E50914] hover:bg-[#b40710] text-white font-semibold"
                         size="sm"

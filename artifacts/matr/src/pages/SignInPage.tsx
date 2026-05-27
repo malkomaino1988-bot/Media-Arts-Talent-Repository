@@ -4,16 +4,18 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { clerkAppearance } from "@/lib/clerk";
 import { useAuth } from "@/lib/auth";
+import { buildAuthHref, getRedirectTarget } from "@/lib/auth-routes";
 
 export default function SignInPage() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const redirectTarget = getRedirectTarget("/dashboard");
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      setLocation(user?.role === "admin" ? "/admin" : "/dashboard");
+      setLocation(user?.role === "admin" && redirectTarget === "/dashboard" ? "/admin" : redirectTarget);
     }
-  }, [isAuthenticated, isLoading, setLocation, user?.role]);
+  }, [isAuthenticated, isLoading, redirectTarget, setLocation, user?.role]);
 
   return (
     <div className="flex min-h-screen bg-black">
@@ -66,8 +68,9 @@ export default function SignInPage() {
                 appearance={clerkAppearance}
                 routing="path"
                 path="/sign-in"
-                signUpUrl="/sign-up"
-                fallbackRedirectUrl="/dashboard"
+                signUpUrl={buildAuthHref("/sign-up", { redirectTo: redirectTarget })}
+                forceRedirectUrl={redirectTarget}
+                fallbackRedirectUrl={redirectTarget}
               />
             </div>
           </div>

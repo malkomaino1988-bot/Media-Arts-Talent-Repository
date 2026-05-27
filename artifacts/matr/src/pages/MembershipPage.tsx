@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Crown, Megaphone, Users } from "lucide-react";
 import PlanCard from "@/components/PlanCard";
-import { useGetMembershipPlans } from "@workspace/api-client-react";
+import { useGetMembershipPlans, useSubscribeMembership } from "@workspace/api-client-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
+import { useLocation } from "wouter";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const HERO_IMAGE = `${import.meta.env.BASE_URL}opengraph.jpg`;
 
@@ -25,12 +29,60 @@ const PLAN_OUTCOMES = [
 ];
 
 export default function MembershipPage() {
-  const [planToggle, setPlanToggle] = useState<"individual" | "business">("individual");
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
+  const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+  const selectedPlanSlug = searchParams.get("plan") ?? "";
+  const [planToggle, setPlanToggle] = useState<"individual" | "business">(
+    selectedPlanSlug.includes("business") ? "business" : "individual",
+  );
   const { data: plans, isLoading } = useGetMembershipPlans();
+  const subscribeMembership = useSubscribeMembership();
 
   const individualPlans = plans?.filter((p) => !p.isBusinessPlan) ?? [];
   const businessPlans = plans?.filter((p) => p.isBusinessPlan) ?? [];
   const displayPlans = planToggle === "individual" ? individualPlans : businessPlans;
+  const selectedPlan = plans?.find((plan) => plan.slug === selectedPlanSlug) ?? null;
+
+  useEffect(() => {
+    if (selectedPlanSlug) {
+      setPlanToggle(selectedPlanSlug.includes("business") ? "business" : "individual");
+    }
+  }, [selectedPlanSlug]);
+
+  const handleSelectPlan = async (slug: string) => {
+    if (!user || !isAuthenticated) {
+      setLocation(buildAuthHref("/sign-up", { plan: slug, redirectTo: `/membership?plan=${slug}` }));
+      return;
+    }
+
+    const plan = plans?.find((entry) => entry.slug === slug);
+    if (!plan) {
+      toast({ title: "Plan not found", variant: "destructive" });
+      return;
+    }
+
+    if (user.planName === plan.name) {
+      toast({ title: `You already have the ${plan.name} plan.` });
+      setLocation("/dashboard");
+      return;
+    }
+
+    try {
+      await subscribeMembership.mutateAsync({
+        data: {
+          userId: user.id,
+          planSlug: slug,
+          paypalOrderId: `SUB-${Date.now()}`,
+        },
+      });
+      toast({ title: "Membership activated", description: `${plan.name} is now attached to your account.` });
+      setLocation("/dashboard");
+    } catch {
+      toast({ title: "Failed to activate membership", variant: "destructive" });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
@@ -78,6 +130,26 @@ export default function MembershipPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {selectedPlan && (
+          <div className="mb-8 rounded-[1.8rem] border border-[#E50914]/15 bg-white p-6">
+            <p className="text-xs uppercase tracking-[0.22em] text-[#E50914] mb-2">Selected Plan</p>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-2xl font-black text-black">{selectedPlan.name}</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {isAuthenticated
+                    ? "Continue below to activate this plan on your account."
+                    : "Create your account first, then you will return here ready to continue with this plan."}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-black text-[#E50914]">${selectedPlan.priceYearly}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-gray-400">per year</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-6 lg:grid-cols-[.88fr_1.12fr] mb-10">
           {PLAN_OUTCOMES.map((item, index) => (
             <motion.div
@@ -129,7 +201,13 @@ export default function MembershipPage() {
         ) : (
           <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${displayPlans.length <= 2 ? "lg:grid-cols-2 max-w-2xl mx-auto" : "lg:grid-cols-4"}`}>
             {displayPlans.map((plan, i) => (
-              <PlanCard key={plan.slug} {...plan} index={i} />
+              <PlanCard
+                key={plan.slug}
+                {...plan}
+                index={i}
+                onSelect={handleSelectPlan}
+                buttonLabel={isAuthenticated ? `Activate ${plan.name}` : "Create Account to Continue"}
+              />
             ))}
           </div>
         )}

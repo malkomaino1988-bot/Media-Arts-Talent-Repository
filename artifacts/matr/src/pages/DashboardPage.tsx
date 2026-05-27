@@ -38,6 +38,7 @@ import {
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const TALENT_TAGS = [
   "Photography",
@@ -269,11 +270,18 @@ export default function DashboardPage() {
         {!user ? (
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
             <p className="text-gray-500 mb-6">Please sign in or create an account to access your dashboard.</p>
-            <Link href="/sign-in">
-              <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl">
-                Sign In
-              </Button>
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link href={buildAuthHref("/sign-in", { redirectTo: "/dashboard" })}>
+                <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href={buildAuthHref("/sign-up", { redirectTo: "/dashboard" })}>
+                <Button variant="outline" className="rounded-xl">
+                  Create Account
+                </Button>
+              </Link>
+            </div>
           </div>
         ) : (
           <>

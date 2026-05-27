@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useCreateJob } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
+import { buildAuthHref } from "@/lib/auth-routes";
 
 const CATEGORIES = [
   "Photography", "Film & Video", "Music", "Graphic Design", "Voice Acting",
@@ -55,7 +56,7 @@ export default function PostJobPage() {
   const handlePay = async () => {
     if (!user) {
       toast({ title: "Please sign in to post a job", variant: "destructive" });
-      setLocation("/sign-in");
+      setLocation(buildAuthHref("/sign-in", { redirectTo: "/post-job" }));
       return;
     }
 
@@ -106,12 +107,12 @@ export default function PostJobPage() {
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
             <p className="text-gray-500 mb-6">Sign in first to post a job to the directory.</p>
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Link href="/sign-in">
+              <Link href={buildAuthHref("/sign-in", { redirectTo: "/post-job" })}>
                 <Button className="bg-[#E50914] hover:bg-[#b40710] text-white font-semibold rounded-xl">
                   Sign In
                 </Button>
               </Link>
-              <Link href="/sign-up">
+              <Link href={buildAuthHref("/sign-up", { redirectTo: "/post-job" })}>
                 <Button variant="outline" className="rounded-xl">Create Account</Button>
               </Link>
             </div>

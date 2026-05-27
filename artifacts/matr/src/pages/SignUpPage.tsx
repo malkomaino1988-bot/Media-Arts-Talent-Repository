@@ -6,20 +6,22 @@ import { useLocation } from "wouter";
 import { useGetMembershipPlans } from "@workspace/api-client-react";
 import { clerkAppearance } from "@/lib/clerk";
 import { useAuth } from "@/lib/auth";
+import { buildAuthHref, getRedirectTarget } from "@/lib/auth-routes";
 
 export default function SignUpPage() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
   const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
   const selectedPlan = searchParams.get("plan") ?? "";
+  const redirectTarget = getRedirectTarget(selectedPlan ? `/membership?plan=${encodeURIComponent(selectedPlan)}` : "/dashboard");
   const { data: plans } = useGetMembershipPlans();
   const selectedPlanData = plans?.find((plan) => plan.slug === selectedPlan) ?? null;
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      setLocation(user?.role === "admin" ? "/admin" : "/dashboard");
+      setLocation(user?.role === "admin" && redirectTarget === "/dashboard" ? "/admin" : redirectTarget);
     }
-  }, [isAuthenticated, isLoading, setLocation, user?.role]);
+  }, [isAuthenticated, isLoading, redirectTarget, setLocation, user?.role]);
 
   return (
     <div className="min-h-screen bg-[#f3f1ed]">
@@ -80,12 +82,13 @@ export default function SignUpPage() {
             <div className="matr-premium-card p-4 sm:p-6">
               <div className="relative z-10">
                 <SignUp
-                  appearance={clerkAppearance}
-                  routing="path"
-                  path="/sign-up"
-                  signInUrl="/sign-in"
-                  fallbackRedirectUrl="/dashboard"
-                />
+                appearance={clerkAppearance}
+                routing="path"
+                path="/sign-up"
+                signInUrl={buildAuthHref("/sign-in", { redirectTo: redirectTarget })}
+                forceRedirectUrl={redirectTarget}
+                fallbackRedirectUrl={redirectTarget}
+              />
               </div>
             </div>
           </motion.div>
