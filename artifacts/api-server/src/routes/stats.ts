@@ -40,7 +40,7 @@ router.get("/stats/overview", async (_req, res): Promise<void> => {
     .from(subscriptionsTable)
     .where(eq(subscriptionsTable.status, "active"));
 
-  const totalRevenue = subscriptions.reduce((sum, s) => {
+  const totalRevenue = subscriptions.reduce((sum: number, s: { planSlug: string }) => {
     return sum + (planRevenue[s.planSlug] ?? 0);
   }, 0);
 

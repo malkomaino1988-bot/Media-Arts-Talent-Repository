@@ -103,6 +103,12 @@ export default function SignUpPage() {
   };
 
   const handlePayPalSuccess = async () => {
+    if (!selectedPlanData) {
+      toast({ title: "Please select a plan", variant: "destructive" });
+      setStep(1);
+      return;
+    }
+
     try {
       const user = await createUser.mutateAsync({
         data: {
@@ -114,7 +120,7 @@ export default function SignUpPage() {
           city: form.city,
           province: form.province,
           country: form.country,
-          planName: selectedPlanData?.name,
+          planName: selectedPlanData.name,
           bio: form.bio || null,
           jobTitle: form.jobTitle || null,
           talentTags: form.talentTags,

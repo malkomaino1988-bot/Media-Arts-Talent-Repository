@@ -1,6 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -30,5 +33,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const frontendDistDir = path.resolve(currentDir, "..", "..", "matr", "dist", "public");
+
+if (fs.existsSync(frontendDistDir)) {
+  app.use(express.static(frontendDistDir));
+
+  app.get(/^(?!\/api).*/, (_req, res) => {
+    res.sendFile(path.join(frontendDistDir, "index.html"));
+  });
+}
 
 export default app;

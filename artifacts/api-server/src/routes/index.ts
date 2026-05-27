@@ -1,26 +1,46 @@
 import { Router, type IRouter } from "express";
-import healthRouter from "./health";
-import authRouter from "./auth";
-import adminRouter from "./admin";
-import usersRouter from "./users";
-import talentsRouter from "./talents";
-import membershipsRouter from "./memberships";
-import jobsRouter from "./jobs";
-import adsRouter from "./ads";
-import mediaRouter from "./media";
-import statsRouter from "./stats";
+import { hasDatabase } from "@workspace/db";
 
 const router: IRouter = Router();
 
-router.use(healthRouter);
-router.use(authRouter);
-router.use(adminRouter);
-router.use(usersRouter);
-router.use(talentsRouter);
-router.use(membershipsRouter);
-router.use(jobsRouter);
-router.use(adsRouter);
-router.use(mediaRouter);
-router.use(statsRouter);
+if (hasDatabase) {
+  const [
+    { default: healthRouter },
+    { default: authRouter },
+    { default: adminRouter },
+    { default: usersRouter },
+    { default: talentsRouter },
+    { default: membershipsRouter },
+    { default: jobsRouter },
+    { default: adsRouter },
+    { default: mediaRouter },
+    { default: statsRouter },
+  ] = await Promise.all([
+    import("./health"),
+    import("./auth"),
+    import("./admin"),
+    import("./users"),
+    import("./talents"),
+    import("./memberships"),
+    import("./jobs"),
+    import("./ads"),
+    import("./media"),
+    import("./stats"),
+  ]);
+
+  router.use(healthRouter);
+  router.use(authRouter);
+  router.use(adminRouter);
+  router.use(usersRouter);
+  router.use(talentsRouter);
+  router.use(membershipsRouter);
+  router.use(jobsRouter);
+  router.use(adsRouter);
+  router.use(mediaRouter);
+  router.use(statsRouter);
+} else {
+  const { default: demoRouter } = await import("./demo");
+  router.use(demoRouter);
+}
 
 export default router;

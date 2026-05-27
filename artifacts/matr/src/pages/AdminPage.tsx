@@ -23,7 +23,7 @@ import {
   useUpdateUser,
   useUpdateJob,
   useUpdateAd,
-  type ListJobsResponse,
+  type JobListResponse,
 } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -74,7 +74,7 @@ export default function AdminPage() {
   const { data: usersData, isLoading: loadingUsers } = useListUsers(usersParams, {
     query: { queryKey: getListUsersQueryKey(usersParams) },
   });
-  const { data: jobsData, isLoading: loadingJobs } = useQuery<ListJobsResponse>({
+  const { data: jobsData, isLoading: loadingJobs } = useQuery<JobListResponse>({
     queryKey: ["admin-jobs", jobsParams],
     queryFn: async () => {
       const query = new URLSearchParams({
@@ -92,7 +92,7 @@ export default function AdminPage() {
         throw new Error("Failed to load admin jobs");
       }
 
-      return response.json() as Promise<ListJobsResponse>;
+      return response.json() as Promise<JobListResponse>;
     },
   });
   const { data: activityData, isLoading: loadingActivity } = useQuery<AdminActivityEntry[]>({
@@ -133,7 +133,7 @@ export default function AdminPage() {
   const activeMemberships = membershipDist?.reduce((sum, item) => sum + item.count, 0) ?? 0;
   const pendingAds = filteredAds.filter((ad) => ad.status === "pending").length;
   const inactiveUsers = usersData?.users.filter((entry) => !entry.isActive).length ?? 0;
-  const draftJobs = jobsData?.jobs.filter((job) => job.status === "draft").length ?? 0;
+  const draftJobs = jobsData?.jobs.filter((job: JobListResponse["jobs"][number]) => job.status === "draft").length ?? 0;
 
   const invalidateAdminData = async () => {
     await Promise.all([
@@ -491,7 +491,7 @@ export default function AdminPage() {
               <div className="divide-y divide-gray-100">
                 {loadingJobs ? (
                   <div className="p-10 text-center text-gray-400">Loading jobs...</div>
-                ) : jobsData?.jobs && jobsData.jobs.length > 0 ? jobsData.jobs.map((job) => (
+                ) : jobsData?.jobs && jobsData.jobs.length > 0 ? jobsData.jobs.map((job: JobListResponse["jobs"][number]) => (
                   <div key={job.id} className="px-5 py-4 flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between">
                     <div className="min-w-0">
                       <p className="font-semibold text-sm text-black">{job.title}</p>

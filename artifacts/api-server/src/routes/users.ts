@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, ilike, or, sql } from "drizzle-orm";
+import { and, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db, usersTable } from "@workspace/db";
 import {
   CreateUserBody,
@@ -26,7 +26,7 @@ router.get("/users", async (req, res): Promise<void> => {
   const { page, limit, plan, search } = query.data;
   const offset = ((page ?? 1) - 1) * (limit ?? 20);
 
-  const conditions = [];
+  const conditions: SQL<unknown>[] = [];
   if (plan) conditions.push(eq(usersTable.planName, plan));
   if (search) {
     conditions.push(
@@ -34,11 +34,11 @@ router.get("/users", async (req, res): Promise<void> => {
         ilike(usersTable.firstName, `%${search}%`),
         ilike(usersTable.lastName, `%${search}%`),
         ilike(usersTable.email, `%${search}%`),
-      ),
+      ) as SQL<unknown>,
     );
   }
 
-  const whereClause = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined;
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const users = await db
     .select()
@@ -55,7 +55,7 @@ router.get("/users", async (req, res): Promise<void> => {
   const total = Number(totalResult[0]?.count ?? 0);
 
   res.json({
-    users: users.map((u) => ({ ...u, passwordHash: undefined })),
+    users: users.map((u: typeof users[number]) => ({ ...u, passwordHash: undefined })),
     total,
     page: page ?? 1,
     limit: limit ?? 20,

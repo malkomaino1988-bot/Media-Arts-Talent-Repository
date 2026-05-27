@@ -71,13 +71,13 @@ router.get("/talents", async (req, res): Promise<void> => {
   if (talentType) {
     const talentTypes = talentType
       .split(",")
-      .map((item) => item.trim())
+      .map((item: string) => item.trim())
       .filter(Boolean);
 
     if (talentTypes.length === 1) {
       conditions.push(sql`${usersTable.talentTags} @> ARRAY[${talentTypes[0]}]::text[]`);
     } else if (talentTypes.length > 1) {
-      conditions.push(or(...talentTypes.map((item) => sql`${usersTable.talentTags} @> ARRAY[${item}]::text[]`)) as SQL<unknown>);
+      conditions.push(or(...talentTypes.map((item: string) => sql`${usersTable.talentTags} @> ARRAY[${item}]::text[]`)) as SQL<unknown>);
     }
   }
 
