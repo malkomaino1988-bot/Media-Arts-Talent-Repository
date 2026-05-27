@@ -46,4 +46,56 @@ router.post("/auth/sign-in", async (req, res): Promise<void> => {
   res.json(safeUser);
 });
 
+router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
+  const clerkId = typeof req.body?.clerkId === "string" ? req.body.clerkId.trim() : "";
+  const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+  const firstName = typeof req.body?.firstName === "string" ? req.body.firstName.trim() : "";
+  const lastName = typeof req.body?.lastName === "string" ? req.body.lastName.trim() : "";
+  const profilePhotoUrl = typeof req.body?.profilePhotoUrl === "string" && req.body.profilePhotoUrl.trim()
+    ? req.body.profilePhotoUrl.trim()
+    : null;
+
+  if (!clerkId || !email) {
+    res.status(400).json({ error: "Clerk account details are required" });
+    return;
+  }
+
+  const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+
+  if (existingUser) {
+    if (!existingUser.isActive) {
+      res.status(403).json({ error: "This account is inactive" });
+      return;
+    }
+
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({
+        firstName: firstName || existingUser.firstName,
+        lastName: lastName || existingUser.lastName,
+        profilePhotoUrl: profilePhotoUrl ?? existingUser.profilePhotoUrl,
+      })
+      .where(eq(usersTable.id, existingUser.id))
+      .returning();
+
+    const { passwordHash: _passwordHash, ...safeUser } = updatedUser ?? existingUser;
+    res.json(safeUser);
+    return;
+  }
+
+  const [createdUser] = await db
+    .insert(usersTable)
+    .values({
+      email,
+      passwordHash: hashPassword(`${clerkId}:${email}`),
+      firstName: firstName || "MATR",
+      lastName: lastName || "Member",
+      profilePhotoUrl,
+    })
+    .returning();
+
+  const { passwordHash: _passwordHash, ...safeUser } = createdUser;
+  res.status(201).json(safeUser);
+});
+
 export default router;

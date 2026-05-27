@@ -7,18 +7,23 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useClerk, useUser as useClerkUser } from "@clerk/react";
 import type { User } from "@workspace/api-client-react";
-
-const AUTH_STORAGE_KEY = "matr.auth.userId";
 
 type AuthContextValue = {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signIn: (email: string, password: string) => Promise<User>;
-  signOut: () => void;
-  setUser: (user: User | null) => void;
+  signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
+};
+
+type ClerkSyncBody = {
+  clerkId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  profilePhotoUrl: string | null;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -34,67 +39,75 @@ async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> 
   return response.json() as Promise<T>;
 }
 
+function buildSyncBody(clerkUser: NonNullable<ReturnType<typeof useClerkUser>["user"]>): ClerkSyncBody | null {
+  const email = clerkUser.primaryEmailAddress?.emailAddress?.trim().toLowerCase();
+
+  if (!email) {
+    return null;
+  }
+
+  return {
+    clerkId: clerkUser.id,
+    email,
+    firstName: clerkUser.firstName?.trim() || clerkUser.username?.trim() || "MATR",
+    lastName: clerkUser.lastName?.trim() || "Member",
+    profilePhotoUrl: clerkUser.imageUrl ?? null,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUserState] = useState<User | null>(null);
+  const clerk = useClerk();
+  const { isLoaded, isSignedIn, user: clerkUser } = useClerkUser();
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const setUser = useCallback((nextUser: User | null) => {
-    setUserState(nextUser);
-    if (nextUser) {
-      window.localStorage.setItem(AUTH_STORAGE_KEY, String(nextUser.id));
-    } else {
-      window.localStorage.removeItem(AUTH_STORAGE_KEY);
-    }
-  }, []);
-
   const refreshUser = useCallback(async () => {
-    const storedId = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!isLoaded) {
+      return;
+    }
 
-    if (!storedId) {
-      setUserState(null);
+    if (!isSignedIn || !clerkUser) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
+    const payload = buildSyncBody(clerkUser);
+
+    if (!payload) {
+      setUser(null);
       setIsLoading(false);
       return;
     }
 
     try {
-      const nextUser = await fetchJson<User>(`/api/users/${storedId}`);
-      setUserState(nextUser);
-    } catch {
-      window.localStorage.removeItem(AUTH_STORAGE_KEY);
-      setUserState(null);
+      const nextUser = await fetchJson<User>("/api/auth/clerk-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      setUser(nextUser);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [clerkUser, isLoaded, isSignedIn]);
 
   useEffect(() => {
     void refreshUser();
   }, [refreshUser]);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const nextUser = await fetchJson<User>("/api/auth/sign-in", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    setUser(nextUser);
-    return nextUser;
-  }, [setUser]);
-
-  const signOut = useCallback(() => {
+  const signOut = useCallback(async () => {
     setUser(null);
-  }, [setUser]);
+    await clerk.signOut();
+  }, [clerk]);
 
   const value = useMemo<AuthContextValue>(() => ({
     user,
     isLoading,
     isAuthenticated: Boolean(user),
-    signIn,
     signOut,
-    setUser,
     refreshUser,
-  }), [isLoading, refreshUser, setUser, signIn, signOut, user]);
+  }), [isLoading, refreshUser, signOut, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

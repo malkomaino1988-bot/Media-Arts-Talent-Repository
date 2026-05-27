@@ -90,7 +90,7 @@ export default function Navbar() {
                 <span className="hidden rounded-full border border-gray-200 bg-[#f7f6f2] px-3 py-1.5 text-sm text-gray-500 xl:block">
                   {user?.firstName} {user?.lastName}
                 </span>
-                <Button variant="ghost" size="sm" onClick={signOut} className="rounded-xl" data-testid="button-sign-out">
+                <Button variant="ghost" size="sm" onClick={() => { void signOut(); }} className="rounded-xl" data-testid="button-sign-out">
                   Sign Out
                 </Button>
               </>
@@ -183,7 +183,7 @@ export default function Navbar() {
                     className="w-full"
                     size="sm"
                     onClick={() => {
-                      signOut();
+                      void signOut();
                       setOpen(false);
                     }}
                     data-testid="button-mobile-sign-out"

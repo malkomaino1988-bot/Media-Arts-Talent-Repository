@@ -471,6 +471,71 @@ router.post("/auth/sign-in", (req, res): void => {
   res.json(safeUser(user));
 });
 
+router.post("/auth/clerk-sync", (req, res): void => {
+  const clerkId = typeof req.body?.clerkId === "string" ? req.body.clerkId.trim() : "";
+  const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+  const firstName = typeof req.body?.firstName === "string" ? req.body.firstName.trim() : "";
+  const lastName = typeof req.body?.lastName === "string" ? req.body.lastName.trim() : "";
+  const profilePhotoUrl = typeof req.body?.profilePhotoUrl === "string" && req.body.profilePhotoUrl.trim()
+    ? req.body.profilePhotoUrl.trim()
+    : null;
+
+  if (!clerkId || !email) {
+    res.status(400).json({ error: "Clerk account details are required" });
+    return;
+  }
+
+  const existingUser = users.find((entry) => entry.email.toLowerCase() === email);
+
+  if (existingUser) {
+    if (!existingUser.isActive) {
+      res.status(403).json({ error: "This account is inactive" });
+      return;
+    }
+
+    existingUser.firstName = firstName || existingUser.firstName;
+    existingUser.lastName = lastName || existingUser.lastName;
+    existingUser.profilePhotoUrl = profilePhotoUrl ?? existingUser.profilePhotoUrl;
+    existingUser.updatedAt = new Date().toISOString();
+
+    res.json(safeUser(existingUser));
+    return;
+  }
+
+  const timestamp = new Date().toISOString();
+  const user: DemoUser = {
+    id: userIdSeq++,
+    email,
+    passwordHash: hashPassword(`${clerkId}:${email}`),
+    firstName: firstName || "MATR",
+    lastName: lastName || "Member",
+    phone: null,
+    city: "Windsor",
+    province: "ON",
+    country: "Canada",
+    planName: null,
+    bio: null,
+    jobTitle: null,
+    talentTags: [],
+    yearsExperience: null,
+    gender: null,
+    age: null,
+    website: null,
+    instagram: null,
+    twitter: null,
+    linkedin: null,
+    profilePhotoUrl,
+    bannerUrl: null,
+    role: "user",
+    isActive: true,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+
+  users.unshift(user);
+  res.status(201).json(safeUser(user));
+});
+
 router.get("/admin/activity", (_req, res): void => {
   res.json(listAdminActivity());
 });
