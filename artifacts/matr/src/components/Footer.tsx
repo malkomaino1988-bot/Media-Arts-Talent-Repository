@@ -5,10 +5,10 @@ export default function Footer() {
   return (
     <footer className="bg-black text-white pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="matr-grid matr-ring relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 md:p-8 mb-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="matr-dark-panel matr-grid matr-ring mb-10 flex flex-col gap-6 p-6 md:p-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="absolute inset-y-0 right-0 hidden w-80 bg-[radial-gradient(circle_at_center,rgba(229,9,20,0.2),transparent_70%)] lg:block" />
-          <div className="relative">
-            <p className="text-xs uppercase tracking-[0.28em] text-white/40 mb-2">Creative Network</p>
+          <div className="relative z-10">
+            <p className="mb-2 text-xs uppercase tracking-[0.28em] text-white/40">Creative Network</p>
             <h3 className="text-2xl md:text-3xl font-black text-white mb-2">
               Make every next step obvious.
             </h3>
@@ -16,9 +16,9 @@ export default function Footer() {
               Explore talent, post a role, promote a project, or upgrade a membership without hitting a dead end.
             </p>
           </div>
-          <div className="relative grid gap-3 sm:grid-cols-3">
+          <div className="relative z-10 grid gap-3 sm:grid-cols-3">
             <Link href="/explore">
-              <span className="inline-flex h-14 min-w-[170px] items-center justify-between rounded-2xl bg-[#E50914] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#b40710] cursor-pointer">
+              <span className="inline-flex h-14 min-w-[170px] cursor-pointer items-center justify-between rounded-2xl bg-[#E50914] px-5 text-sm font-semibold text-white shadow-[0_18px_30px_rgba(229,9,20,0.24)] transition-colors hover:bg-[#b40710]">
                 <span className="flex items-center gap-2">
                   <Users size={16} />
                   Browse Talent
@@ -27,7 +27,7 @@ export default function Footer() {
               </span>
             </Link>
             <Link href="/jobs">
-              <span className="inline-flex h-14 min-w-[170px] items-center justify-between rounded-2xl border border-white/15 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5 cursor-pointer">
+              <span className="inline-flex h-14 min-w-[170px] cursor-pointer items-center justify-between rounded-2xl border border-white/15 bg-white/[0.03] px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5">
                 <span className="flex items-center gap-2">
                   <Briefcase size={16} />
                   Browse Jobs
@@ -36,7 +36,7 @@ export default function Footer() {
               </span>
             </Link>
             <Link href="/advertise">
-              <span className="inline-flex h-14 min-w-[170px] items-center justify-between rounded-2xl border border-white/15 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5 cursor-pointer">
+              <span className="inline-flex h-14 min-w-[170px] cursor-pointer items-center justify-between rounded-2xl border border-white/15 bg-white/[0.03] px-5 text-sm font-semibold text-white transition-colors hover:bg-white/5">
                 <span className="flex items-center gap-2">
                   <Megaphone size={16} />
                   Advertise
@@ -47,10 +47,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[#E50914] rounded-sm flex items-center justify-center">
+              <div className="flex h-9 w-9 items-center justify-center rounded-[0.9rem] bg-[#E50914] shadow-[0_14px_24px_rgba(229,9,20,0.22)]">
                 <span className="text-white font-black text-sm">M</span>
               </div>
               <span className="font-black text-white text-lg tracking-tight">MATR</span>

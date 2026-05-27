@@ -62,10 +62,10 @@ export default function HomePage() {
   const displayPlans = planToggle === "individual" ? individualPlans : businessPlans;
 
   return (
-    <div className="bg-white">
-      <section className="relative overflow-hidden bg-black min-h-[94vh] flex items-center">
+    <div className="bg-[#f3f1ed]">
+      <section className="relative flex min-h-[94vh] items-center overflow-hidden bg-black">
         <div className="absolute inset-0 matr-grid opacity-40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(229,9,20,0.34),transparent_20%),radial-gradient(circle_at_84%_14%,rgba(255,255,255,0.14),transparent_22%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.7))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(229,9,20,0.34),transparent_20%),radial-gradient(circle_at_84%_14%,rgba(255,255,255,0.14),transparent_22%),linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.74))]" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-[1.06fr_.94fr] gap-12 lg:gap-16 items-center">
@@ -75,7 +75,7 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
               className="max-w-3xl"
             >
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 mb-7">
+              <div className="matr-dark-kicker mb-7">
                 <Sparkles size={14} className="text-[#E50914]" />
                 Creative discovery, hiring, and promotion in one product
               </div>
@@ -85,7 +85,7 @@ export default function HomePage() {
                 <span className="text-[#E50914]">.</span>
               </h1>
 
-              <p className="text-white/72 text-lg md:text-xl max-w-2xl leading-relaxed mb-10">
+              <p className="mb-10 max-w-2xl text-lg leading-relaxed text-white/72 md:text-xl">
                 Welcome to our media arts talent repository where you can gain exposure for your creative talents, or find the right people to join your cast, crew, or team.
               </p>
 
@@ -112,8 +112,8 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4">
-                <div className="rounded-[1.6rem] border border-white/10 bg-white/6 p-4 backdrop-blur-sm">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
+                <div className="matr-dark-panel p-4">
                   <div className="flex gap-3">
                     <div className="relative flex-1">
                       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" size={18} />
@@ -138,7 +138,7 @@ export default function HomePage() {
                   <div className="mt-4 flex flex-wrap gap-2">
                     {TALENT_TYPES.slice(0, 6).map((type) => (
                       <Link key={type} href={`/explore?talentType=${encodeURIComponent(type)}`}>
-                        <span className="inline-flex cursor-pointer rounded-full border border-white/10 px-3 py-1 text-xs text-white/70 transition-colors hover:bg-white/10">
+                        <span className="inline-flex cursor-pointer rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/72 transition-colors hover:bg-white/10">
                           {type}
                         </span>
                       </Link>
@@ -152,7 +152,7 @@ export default function HomePage() {
                     { value: "Jobs", label: "Hiring Board" },
                     { value: "Ads", label: "Brand Reach" },
                   ].map((stat) => (
-                    <div key={stat.label} className="rounded-[1.3rem] border border-white/10 bg-white/6 p-4 text-center backdrop-blur-sm">
+                    <div key={stat.label} className="matr-dark-panel p-4 text-center">
                       <p className="text-2xl font-black text-white">{stat.value}</p>
                       <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-white/35">{stat.label}</p>
                     </div>
@@ -167,7 +167,7 @@ export default function HomePage() {
               transition={{ duration: 0.8, delay: 0.15 }}
               className="relative"
             >
-              <div className="relative h-[520px] lg:h-[680px] overflow-hidden rounded-[2.2rem] border border-white/10 bg-neutral-900 shadow-[0_30px_80px_rgba(0,0,0,.45)]">
+              <div className="relative h-[520px] overflow-hidden rounded-[2.4rem] border border-white/10 bg-neutral-900 shadow-[0_30px_80px_rgba(0,0,0,.45)] lg:h-[680px]">
                 <img
                   src={HERO_IMAGE}
                   alt="Creative professionals collaborating"
@@ -176,6 +176,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-black via-black/28 to-transparent" />
                 <div className="absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-black via-black/82 to-transparent" />
                 <div className="absolute right-0 top-0 h-full w-full bg-[radial-gradient(circle_at_78%_16%,rgba(229,9,20,0.3),transparent_22%)]" />
+                <div className="absolute inset-y-0 right-0 w-[44%] bg-gradient-to-l from-black/16 to-transparent" />
 
                 <div className="absolute left-6 top-6 right-6 flex justify-between gap-4">
                   <div className="rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white backdrop-blur-md">
@@ -214,11 +215,14 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      <section className="bg-[#F5F5F5] py-20">
+      <section className="bg-[#f3f1ed] py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.22em] text-[#E50914] mb-3">How The Product Works</p>
+              <div className="matr-section-kicker mb-3">
+                <Sparkles size={12} className="text-[#E50914]" />
+                How The Product Works
+              </div>
               <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
                 Built to move people from discovery to action.
               </h2>
@@ -241,20 +245,20 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.08 }}
-                className="matr-panel rounded-[1.8rem] border border-gray-200 bg-white p-7"
+                className="matr-premium-card p-7"
               >
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+                <div className="relative z-10 flex items-center justify-between mb-5">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white shadow-[0_14px_30px_rgba(17,17,17,0.16)]">
                     <item.icon size={18} />
                   </div>
                   <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-300">
                     0{index + 1}
                   </span>
                 </div>
-                <h3 className="text-2xl font-black text-black mb-3">{item.title}</h3>
-                <p className="text-gray-500 leading-relaxed mb-6">{item.text}</p>
+                <h3 className="relative z-10 text-2xl font-black text-black mb-3">{item.title}</h3>
+                <p className="relative z-10 text-gray-500 leading-relaxed mb-6">{item.text}</p>
                 <Link href={item.href}>
-                  <Button variant="outline" className="rounded-xl border-gray-200 gap-2">
+                  <Button variant="outline" className="relative z-10 rounded-xl border-gray-200 gap-2 bg-white/80">
                     {item.cta}
                     <ArrowRight size={15} />
                   </Button>
@@ -275,7 +279,10 @@ export default function HomePage() {
             className="grid grid-cols-1 lg:grid-cols-[1fr_.92fr] gap-10 items-center mb-12"
           >
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.22em] text-[#E50914] mb-3">Membership</p>
+              <div className="matr-section-kicker mb-3">
+                <Sparkles size={12} className="text-[#E50914]" />
+                Membership
+              </div>
               <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
                 Join our creative talent directory.
               </h2>
@@ -309,13 +316,18 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="relative h-[300px] md:h-[340px] overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-sm">
+            <div className="relative h-[300px] overflow-hidden rounded-[2.2rem] border border-gray-200 bg-white shadow-sm md:h-[340px]">
               <img
                 src={HERO_IMAGE}
                 alt="Talent directory preview"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-white via-white/82 to-transparent" />
+              <div className="absolute right-6 top-6 hidden rounded-[1.3rem] border border-black/8 bg-white/92 px-5 py-4 shadow-[0_14px_36px_rgba(17,17,17,0.08)] md:block">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">Plans</p>
+                <p className="mt-2 text-2xl font-black text-black">$25 to $250</p>
+                <p className="mt-1 text-sm text-gray-500">Built for visibility, hiring, and growth.</p>
+              </div>
               <div className="absolute left-0 top-0 flex h-full max-w-[62%] flex-col justify-end p-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#E50914]">
                   Membership
@@ -347,7 +359,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.22em] text-[#E50914] mb-3">Directory Preview</p>
+              <div className="matr-dark-kicker mb-3">
+                <Sparkles size={12} className="text-[#E50914]" />
+                Directory Preview
+              </div>
               <h2 className="text-4xl md:text-5xl font-black mb-4">
                 Discover Talent
               </h2>
@@ -375,7 +390,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-8">
+            <div className="matr-dark-panel p-8">
               <p className="text-white/75 font-semibold mb-2">The directory is ready to browse.</p>
               <p className="text-white/50 mb-5">
                 Featured members will appear here as more profiles are completed and upgraded.
@@ -399,9 +414,9 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 bg-black text-white rounded-full px-3 py-1.5 mb-6">
+              <div className="matr-section-kicker mb-6 border-black/10 bg-black text-white shadow-none">
                 <Briefcase size={14} className="text-[#E50914]" />
-                <span className="text-white/70 text-sm font-medium">Jobs</span>
+                <span className="text-white/70 text-sm font-medium tracking-normal">Jobs</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-black leading-tight mb-6 text-black">
                 Hire Content Creators / Talent
@@ -415,9 +430,9 @@ export default function HomePage() {
                   "Sort by talent type or city to compare roles quickly.",
                   "Return to your dashboard after checkout to manage every listing.",
                 ].map((item) => (
-                  <div key={item} className="flex items-start gap-3">
+                  <div key={item} className="matr-premium-card flex items-start gap-3 p-4">
                     <CheckCircle2 size={18} className="text-[#E50914] mt-0.5" />
-                    <p className="text-gray-600">{item}</p>
+                    <p className="relative z-10 text-gray-600">{item}</p>
                   </div>
                 ))}
               </div>
@@ -456,13 +471,17 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <div className="relative h-[440px] overflow-hidden rounded-[2rem] border border-gray-200 bg-neutral-900">
+              <div className="relative h-[440px] overflow-hidden rounded-[2.2rem] border border-gray-200 bg-neutral-900">
                 <img
                   src={HERO_IMAGE}
                   alt="Creative hiring board"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black via-black/44 to-transparent" />
+                <div className="absolute right-6 top-6 rounded-[1.4rem] border border-white/10 bg-black/50 px-5 py-4 text-white backdrop-blur-md">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/35">Workflow</p>
+                  <p className="mt-2 text-lg font-bold">Browse Jobs before you Post a Job.</p>
+                </div>
                 <div className="absolute left-0 top-0 flex h-full max-w-[72%] flex-col justify-end p-8">
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#E50914]">
                     Browse first
@@ -477,7 +496,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-20 bg-[#F5F5F5]">
+      <section className="py-20 bg-[#f3f1ed]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -486,9 +505,9 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <div className="inline-flex items-center gap-2 bg-white rounded-full px-3 py-1.5 mb-6 border border-gray-200">
+            <div className="matr-section-kicker mb-6">
               <Monitor size={14} className="text-gray-500" />
-              <span className="text-gray-500 text-sm font-medium">Advertising</span>
+              <span className="text-gray-500 text-sm font-medium tracking-normal">Advertising</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
               Reach Content Creators
@@ -523,19 +542,19 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 whileHover={{ y: -4 }}
               >
-                <div className="border border-gray-200 rounded-[1.8rem] p-7 hover:border-gray-300 hover:shadow-md transition-all h-full bg-white">
-                  <div className="flex items-start justify-between mb-4">
+                <div className="matr-premium-card h-full p-7 transition-all hover:border-gray-300 hover:shadow-md">
+                  <div className="relative z-10 flex items-start justify-between mb-4">
                     <h3 className="text-xl font-bold text-black">{ad.name}</h3>
                     <span className="text-xs bg-black text-white px-2.5 py-1 rounded-full font-semibold">
                       {ad.badge}
                     </span>
                   </div>
-                  <div className="text-3xl font-black text-[#E50914] mb-3">{ad.price}</div>
-                  <p className="text-gray-500 text-sm mb-4">{ad.description}</p>
-                  <p className="text-gray-400 text-xs mb-6 font-mono">{ad.specs}</p>
+                  <div className="relative z-10 text-3xl font-black text-[#E50914] mb-3">{ad.price}</div>
+                  <p className="relative z-10 text-gray-500 text-sm mb-4">{ad.description}</p>
+                  <p className="relative z-10 text-gray-400 text-xs mb-6 font-mono">{ad.specs}</p>
                   <Link href="/advertise">
                     <Button
-                      className="w-full bg-black hover:bg-gray-800 text-white font-semibold rounded-xl"
+                      className="relative z-10 w-full bg-black hover:bg-gray-800 text-white font-semibold rounded-xl"
                       data-testid={`button-advertise-${i}`}
                     >
                       Get Started
@@ -587,7 +606,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="relative h-[320px] md:h-[380px] overflow-hidden rounded-[2rem] border border-white/20 bg-[#b40710]">
+            <div className="relative h-[320px] overflow-hidden rounded-[2.2rem] border border-white/20 bg-[#b40710] md:h-[380px]">
               <img
                 src={HERO_IMAGE}
                 alt="Creative directory members"
@@ -595,6 +614,10 @@ export default function HomePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-r from-[#E50914] via-[#E50914]/78 to-transparent" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_20%,rgba(255,255,255,0.18),transparent_24%)]" />
+              <div className="absolute right-6 top-6 rounded-[1.4rem] border border-white/20 bg-white/12 px-5 py-4 text-white backdrop-blur-md">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">Final Step</p>
+                <p className="mt-2 text-xl font-black">Create a profile that looks ready before anyone clicks in.</p>
+              </div>
             </div>
           </motion.div>
         </div>

@@ -70,11 +70,15 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen bg-[#f3f1ed]">
       <div className="bg-black text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[1fr_.9fr] lg:items-end">
             <div>
+              <div className="matr-dark-kicker mb-4">
+                <Sparkles size={12} className="text-[#E50914]" />
+                Talent Directory
+              </div>
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -92,7 +96,7 @@ export default function ExplorePage() {
                 { value: "Experience", label: "Optional filter" },
                 { value: "Checklist", label: "Visible talent types" },
               ].map((item) => (
-                <div key={item.label} className="rounded-2xl border border-white/10 bg-white/6 p-4">
+                <div key={item.label} className="matr-dark-panel p-4">
                   <p className="text-2xl font-black text-white">{item.value}</p>
                   <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/35">{item.label}</p>
                 </div>
@@ -104,7 +108,7 @@ export default function ExplorePage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr] mb-6">
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+          <div className="matr-premium-card p-5">
             <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_.8fr_.8fr] gap-3 mb-5">
               <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -144,7 +148,7 @@ export default function ExplorePage() {
             </div>
 
             <div className="border-t border-gray-100 pt-5">
-              <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
                   <h2 className="text-sm font-semibold text-black">Talent Types</h2>
                   <p className="text-sm text-gray-500">Select one or more specialties.</p>
@@ -159,7 +163,7 @@ export default function ExplorePage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2.5">
+              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
                 {TALENT_TYPES.map((talent) => {
                   const selected = selectedTalentTypes.includes(talent);
                   return (
@@ -167,8 +171,8 @@ export default function ExplorePage() {
                       key={talent}
                       className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors cursor-pointer ${
                         selected
-                          ? "border-black bg-black text-white"
-                          : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                          ? "border-black bg-black text-white shadow-[0_18px_30px_rgba(17,17,17,0.16)]"
+                          : "border-gray-200 bg-white/90 text-gray-700 hover:border-gray-300"
                       }`}
                     >
                       <input
@@ -177,6 +181,7 @@ export default function ExplorePage() {
                         onChange={() => toggleTalentType(talent)}
                         className="sr-only"
                       />
+                      <span className={`h-2.5 w-2.5 rounded-full ${selected ? "bg-[#E50914]" : "bg-gray-300"}`} />
                       <span>{talent}</span>
                     </label>
                   );
@@ -185,11 +190,11 @@ export default function ExplorePage() {
             </div>
 
             {activeFilters.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-5 pt-4 border-t border-gray-100">
+              <div className="mt-5 flex flex-wrap gap-2 border-t border-gray-100 pt-4">
                 {activeFilters.map((filter) => (
                   <span
                     key={filter.key}
-                    className="flex items-center gap-1.5 bg-black text-white text-xs rounded-full px-3 py-1.5 font-medium"
+                    className="flex items-center gap-1.5 rounded-full bg-black px-3 py-1.5 text-xs font-medium text-white shadow-[0_14px_24px_rgba(17,17,17,0.14)]"
                   >
                     {filter.label}
                     <button onClick={() => removeFilter(filter.key)} className="hover:opacity-70">
@@ -207,12 +212,12 @@ export default function ExplorePage() {
             )}
           </div>
 
-          <div className="bg-black rounded-[1.8rem] p-6 text-white">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="matr-dark-panel p-6 text-white">
+            <div className="relative z-10 flex items-center gap-2 mb-4">
               <Sparkles size={16} className="text-[#E50914]" />
               <p className="text-xs uppercase tracking-[0.22em] text-white/45">Search Strategy</p>
             </div>
-            <div className="space-y-3 text-sm text-white/70">
+            <div className="relative z-10 space-y-3 text-sm text-white/70">
               {[
                 "Start broad with one or two talent types, then narrow by city or experience.",
                 "Use the visible checklist to compare specialties at a glance before applying filters.",
@@ -221,6 +226,17 @@ export default function ExplorePage() {
                 <div key={item} className="flex items-start gap-2">
                   <CheckCircle2 size={16} className="text-[#E50914] mt-0.5" />
                   <span>{item}</span>
+                </div>
+              ))}
+            </div>
+            <div className="relative z-10 mt-6 grid gap-3">
+              {[
+                `${selectedTalentTypes.length || "No"} talent type${selectedTalentTypes.length === 1 ? "" : "s"} selected`,
+                city || "Any location selected",
+                minExperience ? `${minExperience}+ years minimum experience` : "Any experience level",
+              ].map((item) => (
+                <div key={item} className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-white/80">
+                  {item}
                 </div>
               ))}
             </div>
@@ -235,14 +251,14 @@ export default function ExplorePage() {
           </div>
         ) : data?.talents && data.talents.length > 0 ? (
           <>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5 rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="matr-premium-card mb-5 flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
               <p className="text-gray-500 text-sm" data-testid="text-results-count">
                 {data.total} talent{data.total !== 1 ? "s" : ""} found
               </p>
               <div className="flex flex-wrap gap-2 text-xs text-gray-400">
-                <span className="rounded-full bg-[#F5F5F5] px-3 py-1">Public profiles</span>
-                <span className="rounded-full bg-[#F5F5F5] px-3 py-1">Location-aware</span>
-                <span className="rounded-full bg-[#F5F5F5] px-3 py-1">Ready to review</span>
+                <span className="matr-chip">Public profiles</span>
+                <span className="matr-chip">Location-aware</span>
+                <span className="matr-chip">Ready to review</span>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">

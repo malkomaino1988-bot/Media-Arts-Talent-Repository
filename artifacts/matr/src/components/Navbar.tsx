@@ -26,7 +26,7 @@ export default function Navbar() {
     : [];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/92 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-black/5 bg-white/88 backdrop-blur-xl">
       <div className="border-b border-black/5 bg-black text-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 py-2 text-xs sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-white/70">
@@ -40,10 +40,10 @@ export default function Navbar() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex h-[4.5rem] items-center justify-between">
           <Link href="/" data-testid="link-logo">
             <div className="flex items-center gap-3 cursor-pointer group">
-              <div className="w-9 h-9 bg-[#E50914] rounded-xl flex items-center justify-center shadow-[0_12px_24px_rgba(229,9,20,0.28)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[1rem] bg-[#E50914] shadow-[0_14px_28px_rgba(229,9,20,0.28)] transition-transform group-hover:-translate-y-0.5">
                 <span className="text-white font-black text-sm">M</span>
               </div>
               <div className="hidden sm:block">
@@ -55,14 +55,14 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1 rounded-full border border-black/6 bg-[#f7f6f2] px-2 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}>
                 <span
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                  className={`cursor-pointer rounded-full px-3 py-2 text-sm font-medium transition-colors ${
                     location === link.href
-                      ? "text-[#E50914] bg-red-50"
-                      : "text-gray-700 hover:text-black hover:bg-gray-50"
+                      ? "bg-white text-[#E50914] shadow-sm"
+                      : "text-gray-700 hover:bg-white hover:text-black"
                   }`}
                 >
                   {link.label}
@@ -72,10 +72,10 @@ export default function Navbar() {
             {accountLinks.map((link) => (
               <Link key={link.href} href={link.href} data-testid={`link-nav-${link.label.toLowerCase()}`}>
                 <span
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                  className={`cursor-pointer rounded-full px-3 py-2 text-sm font-medium transition-colors ${
                     location === link.href
-                      ? "text-[#E50914] bg-red-50"
-                      : "text-gray-700 hover:text-black hover:bg-gray-50"
+                      ? "bg-white text-[#E50914] shadow-sm"
+                      : "text-gray-700 hover:bg-white hover:text-black"
                   }`}
                 >
                   {link.label}
@@ -87,7 +87,7 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             {isLoading ? null : isAuthenticated ? (
               <>
-                <span className="text-sm text-gray-500 hidden xl:block">
+                <span className="hidden rounded-full border border-gray-200 bg-[#f7f6f2] px-3 py-1.5 text-sm text-gray-500 xl:block">
                   {user?.firstName} {user?.lastName}
                 </span>
                 <Button variant="ghost" size="sm" onClick={signOut} className="rounded-xl" data-testid="button-sign-out">
@@ -121,7 +121,7 @@ export default function Navbar() {
           </div>
 
           <button
-            className="lg:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
+            className="rounded-xl p-2 text-gray-700 hover:bg-gray-100 lg:hidden"
             onClick={() => setOpen(!open)}
             data-testid="button-mobile-menu"
             aria-label="Toggle menu"
